@@ -61,15 +61,18 @@ impl Road {
         end: &IVec2,
         filter_map: BuildabilityMap,
     ) -> Option<Vec<IVec2>> {
-        let h = |x| end.distance_squared(x) as f32;
+        if filter_map.get(end.x, end.y) {
+            return None;
+        }
 
+        let h = |x: IVec2| ((end.x - x.x).abs() + (end.y - x.y).abs());
         let mut next_to_search: Vec<IVec2> = vec![*start];
-        let mut f_scores: HashMap<IVec2, f32> = HashMap::new();
+        let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
 
         let mut came_from: HashMap<IVec2, IVec2> = HashMap::new();
 
-        let mut g_scores: HashMap<IVec2, f32> = HashMap::new();
-        g_scores.insert(*start, 0.);
+        let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
+        g_scores.insert(*start, 0);
 
         while !next_to_search.is_empty() {
             let current = next_to_search.remove(0);
@@ -91,9 +94,7 @@ impl Road {
             ]
             .iter()
             .filter_map(|neighbour| {
-                if neighbour.x < 0 || neighbour.y < 0 {
-                    None
-                } else if filter_map.get(neighbour.x, neighbour.y) {
+                if neighbour.x < 0 || neighbour.y < 0 || filter_map.get(neighbour.x, neighbour.y) {
                     None
                 } else {
                     Some(*neighbour)
@@ -102,8 +103,8 @@ impl Road {
             .collect();
 
             for neighbour in neighbours {
-                let this_g_score = g_scores[&current] + 1.;
-                let g_score = g_scores.get(&neighbour).unwrap_or(&f32::INFINITY);
+                let this_g_score = g_scores[&current] + 1;
+                let g_score = g_scores.get(&neighbour).unwrap_or(&i32::MAX);
                 let already_exists = g_scores.contains_key(&neighbour);
 
                 if this_g_score < *g_score {

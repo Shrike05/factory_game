@@ -33,8 +33,9 @@ pub fn spawn_factories(
 
         let shape = fac_map.shapes[&factory.factory_type].clone();
         for offset in shape {
-            //let i = build_map.pos_to_index(factory.origin.x + offset.x, factory.origin.y + offset.y);
-            build_map.set_real(factory.origin + offset, true);
+            build_map
+                .set_real(factory.origin + offset, true)
+                .expect("Couldn't set factory to the build_map");
         }
     }
 }
