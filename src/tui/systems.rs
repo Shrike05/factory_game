@@ -6,8 +6,13 @@ use crossterm::event::KeyEventKind;
 use log::info;
 use ratatui::layout::*;
 use ratatui::widgets::*;
+use tui_logger::TuiWidgetEvent;
 
-pub fn draw_system(tui_input: Res<TUIInput>, mut context: ResMut<RatatuiContext>) -> Result {
+pub fn draw_system(
+    tui_input: Res<TUIInput>,
+    mut context: ResMut<RatatuiContext>,
+    log_state: Res<LogState>,
+) -> Result {
     context.draw(|frame| {
         let chunks = Layout::default()
             .direction(Direction::Vertical)
@@ -20,7 +25,8 @@ pub fn draw_system(tui_input: Res<TUIInput>, mut context: ResMut<RatatuiContext>
             .output_target(false)
             .output_line(false)
             .output_timestamp(None)
-            .output_level(None);
+            .output_level(None)
+            .state(log_state.get());
 
         let history = tui_input
             .get_history()
@@ -89,6 +95,23 @@ pub fn print_entities_command(
 
         for entity in entities {
             info!("{:?}", entity);
+        }
+    }
+}
+
+pub fn navigate_logs(mut key_events: MessageReader<KeyMessage>, mut log_state: ResMut<LogState>) {
+    for event in key_events.read() {
+        if event.kind != KeyEventKind::Press {
+            continue;
+        }
+        match event.code {
+            crossterm::event::KeyCode::Up => {
+                log_state.get_mut().transition(TuiWidgetEvent::PrevPageKey);
+            }
+            crossterm::event::KeyCode::Down => {
+                log_state.get_mut().transition(TuiWidgetEvent::NextPageKey);
+            }
+            _ => {}
         }
     }
 }

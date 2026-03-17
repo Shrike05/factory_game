@@ -10,7 +10,8 @@ impl Plugin for TUIPlugin {
         app.add_plugins(RatatuiPlugins::default());
         app.add_message::<TUICommand>();
         app.insert_resource(TUIInput::default());
-        app.add_systems(Update, (draw_system, input_system));
+        app.insert_resource(LogState::default());
+        app.add_systems(Update, (draw_system, input_system, navigate_logs));
         app.add_systems(Update, (clear_command, print_entities_command));
     }
 }

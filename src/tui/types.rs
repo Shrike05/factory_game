@@ -1,6 +1,6 @@
-use std::str::FromStr;
-
 use bevy::prelude::*;
+use std::str::FromStr;
+use tui_logger::TuiWidgetState;
 
 const HISTORY: usize = 20;
 
@@ -86,5 +86,33 @@ impl FromStr for PrintEntities {
         } else {
             Err(format!("Couldn't parse PrintEntities, input: {}", s))
         }
+    }
+}
+
+#[derive(Resource)]
+pub struct LogState {
+    state: TuiWidgetState,
+}
+
+impl Default for LogState {
+    fn default() -> Self {
+        Self {
+            // This initializes the state with default scroll/filter settings
+            state: TuiWidgetState::new(),
+        }
+    }
+}
+
+impl LogState {
+    pub fn get(&self) -> &TuiWidgetState {
+        &self.state
+    }
+
+    pub fn get_mut(&mut self) -> &mut TuiWidgetState {
+        &mut self.state
+    }
+
+    pub fn set(&mut self, x: TuiWidgetState) {
+        self.state = x;
     }
 }
