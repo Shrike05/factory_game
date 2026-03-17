@@ -1,6 +1,10 @@
-use bevy::prelude::*;
+use bevy::{log::LogPlugin, prelude::*};
+#[cfg(feature = "dev_tools")]
+use bevy_devtools::*;
 
 mod camera;
+#[cfg(feature = "dev_tools")]
+mod dev;
 mod factory;
 mod preview;
 mod road;
@@ -9,16 +13,24 @@ mod terrain;
 mod ui;
 
 fn main() {
-    App::new()
-        .add_plugins((
-            DefaultPlugins,
-            factory::FactoryPlugin,
-            camera::CameraPlugin,
-            road::RoadPlugin,
-            terrain::TerrainPlugin,
-            MeshPickingPlugin,
-            preview::PreviewPlugin,
-        ))
-        .init_state::<states::BuildSelection>()
-        .run();
+    #[cfg(feature = "dev_tools")]
+    setup_logger();
+
+    let mut app = App::new();
+
+    app.add_plugins((
+        DefaultPlugins.build().disable::<LogPlugin>(),
+        factory::FactoryPlugin,
+        camera::CameraPlugin,
+        road::RoadPlugin,
+        terrain::TerrainPlugin,
+        MeshPickingPlugin,
+        preview::PreviewPlugin,
+    ))
+    .init_state::<states::BuildSelection>();
+
+    #[cfg(feature = "dev_tools")]
+    app.add_plugins((tui::TUIPlugin, dev::DevPlugin));
+
+    app.run();
 }

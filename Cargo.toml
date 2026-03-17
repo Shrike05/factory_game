@@ -6,3 +6,9 @@ edition = "2024"
 [dependencies]
 bevy = "0.18.0"
 bitmaps = "3.2.1"
+bevy_devtools = { git = "https://github.com/Shrike05/bevy_devtools.git", branch = "main", optional = true }
+regex = "1.12.3"
+clap = {version = "4.6.0", features = ["derive"]}
+
+[features]
+dev_tools = ["dep:bevy_devtools"]

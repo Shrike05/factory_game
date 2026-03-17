@@ -4,8 +4,8 @@ use bevy::prelude::*;
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum BuildSelection {
     Factory(FactoryType),
-    #[default]
     Road,
+    #[default]
     None,
 }
 
