@@ -11,5 +11,6 @@ impl Plugin for TUIPlugin {
         app.add_message::<TUICommand>();
         app.insert_resource(TUIInput::default());
         app.add_systems(Update, (draw_system, input_system));
+        app.add_systems(Update, (clear_command, print_entities_command));
     }
 }
