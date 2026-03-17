@@ -6,6 +6,7 @@ mod preview;
 mod road;
 mod states;
 mod terrain;
+mod tui;
 mod ui;
 
 fn main() {
@@ -18,6 +19,7 @@ fn main() {
             terrain::TerrainPlugin,
             MeshPickingPlugin,
             preview::PreviewPlugin,
+            tui::TUIPlugin,
         ))
         .init_state::<states::BuildSelection>()
         .run();
