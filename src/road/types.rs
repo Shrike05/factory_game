@@ -1,7 +1,9 @@
 use std::collections::HashMap;
 
 use crate::terrain::BuildabilityMap;
-use bevy::{prelude::*, reflect::List};
+use bevy::prelude::*;
+
+const SEARCH_DEPTH: u32 = 100;
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RoadConstructor {
@@ -65,7 +67,7 @@ impl Road {
             return None;
         }
 
-        let h = |x: IVec2| ((end.x - x.x).abs() + (end.y - x.y).abs());
+        let h = |x: IVec2| (end.x - x.x).abs() + (end.y - x.y).abs();
         let mut next_to_search: Vec<IVec2> = vec![*start];
         let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
 
@@ -74,7 +76,10 @@ impl Road {
         let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
         g_scores.insert(*start, 0);
 
-        while !next_to_search.is_empty() {
+        let mut current_depth = 0_u32;
+        while !next_to_search.is_empty() && current_depth < SEARCH_DEPTH {
+            current_depth += 1;
+
             let current = next_to_search.remove(0);
             if current == *end {
                 let mut total_path = vec![current];
@@ -148,6 +153,7 @@ impl Road {
     }
 }
 
+#[allow(unused)]
 impl RoadConstructor {
     pub fn new(start: IVec2, waypoints: Vec<IVec2>, end: IVec2) -> Self {
         RoadConstructor {
