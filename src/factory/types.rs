@@ -1,8 +1,8 @@
+use bevy::prelude::*;
+use clap::ValueEnum;
 use std::collections::HashMap;
 
-use bevy::prelude::*;
-
-#[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
 pub enum FactoryType {
     #[default]
     Empty,
