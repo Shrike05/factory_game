@@ -33,7 +33,6 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
         }
         return;
     }
-    println!("Creatign road");
 
     let path_vec = Road::create_candidate_road(
         &params.road_constructor.get_start().unwrap(),

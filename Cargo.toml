@@ -5,9 +5,5 @@ edition = "2024"
 
 [dependencies]
 bevy = "0.18.0"
-bevy_ratatui = "0.11.1"
 bitmaps = "3.2.1"
-crossterm = "0.29.0"
-log = "0.4.29"
-ratatui = "0.30.0"
-tui-logger = "0.18.1"
+bevy_tui = { git = "https://github.com/Shrike05/bevy_tui.git", branch = "main" }
