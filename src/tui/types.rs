@@ -1,7 +1,10 @@
 use bevy::prelude::*;
 
+const HISTORY: usize = 20;
+
 #[derive(Resource, Clone, Default, Debug, PartialEq, Eq)]
 pub struct TUIInput {
+    old_commands: Vec<String>,
     input: String,
 }
 
@@ -14,8 +17,20 @@ impl TUIInput {
         &self.input
     }
 
+    pub fn get_history(&self) -> &Vec<String> {
+        &self.old_commands
+    }
+
     pub fn pop_command(&mut self) {
+        self.old_commands.insert(0, self.input.clone());
+        while self.old_commands.len() > HISTORY {
+            self.old_commands.pop();
+        }
         self.input = "".to_string();
+    }
+
+    pub fn remove_char(&mut self) {
+        self.input.pop();
     }
 }
 
