@@ -33,10 +33,9 @@ pub fn spawn_factories(
     fac_map: Res<FactoryMap>,
 ) {
     for message in msg.read() {
-        let factory = Factory::new(message.pos, message.factory_type);
+        let mut factory = Factory::spawn(&mut commands, message.pos, message.factory_type);
 
-        commands.spawn((
-            factory,
+        factory.insert((
             Mesh3d(fac_assets.meshes.get(&FactoryType::Empty).unwrap().clone()),
             MeshMaterial3d(
                 fac_assets
@@ -45,13 +44,13 @@ pub fn spawn_factories(
                     .unwrap()
                     .clone(),
             ),
-            Transform::from_xyz(factory.origin.x as f32, 0., factory.origin.y as f32),
+            Transform::from_xyz(message.pos.x as f32, 0., message.pos.y as f32),
         ));
 
-        let shape: Box<[GridPos]> = fac_map.shapes[&factory.factory_type].clone();
+        let shape: Box<[GridPos]> = fac_map.shapes[&message.factory_type].clone();
         for offset in shape {
             build_map
-                .set_real(factory.origin + offset, true)
+                .set_real(message.pos + offset, true)
                 .expect("Couldn't set factory to the build_map");
         }
     }

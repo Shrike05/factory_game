@@ -1,7 +1,7 @@
 use crate::globals::*;
 use bevy::prelude::*;
 use clap::ValueEnum;
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
 pub enum FactoryType {
@@ -11,10 +11,15 @@ pub enum FactoryType {
     Source,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash)]
+pub struct FactoryId(Entity);
+
+#[derive(Component, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Factory {
     pub origin: GridPos,
     pub factory_type: FactoryType,
+    inbound: Vec<FactoryId>,
+    outbound: Vec<FactoryId>,
 }
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq)]
@@ -72,10 +77,24 @@ impl FactoryMap {
 }
 
 impl Factory {
-    pub fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
+    fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
         Factory {
             origin,
             factory_type,
+            inbound: vec![],
+            outbound: vec![],
         }
+    }
+
+    pub fn spawn<'a>(
+        commands: &'a mut Commands,
+        origin: GridPos,
+        factory_type: FactoryType,
+    ) -> EntityCommands<'a> {
+        let mut entity_commands: EntityCommands<'a> =
+            commands.spawn(Factory::new(origin, factory_type));
+        let id = entity_commands.id();
+        entity_commands.insert(FactoryId(id));
+        entity_commands
     }
 }
