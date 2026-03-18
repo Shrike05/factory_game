@@ -1,3 +1,4 @@
+use crate::globals::GridPos;
 use crate::terrain::systems::*;
 use crate::terrain::types::*;
 use bevy::prelude::*;
@@ -10,7 +11,7 @@ impl Plugin for TerrainPlugin {
         app.insert_resource(BuildSelection::Road);
         app.insert_resource(BuildabilityMap { map: Bitmap::new() });
         app.insert_resource(HoveredTile {
-            pos: IVec2 { x: 0, y: 0 },
+            pos: GridPos::new(0, 0),
             hovering: false,
         });
         app.add_systems(Startup, spawn_terrain);

@@ -6,6 +6,7 @@ mod camera;
 #[cfg(feature = "dev_tools")]
 mod dev;
 mod factory;
+mod globals;
 mod preview;
 mod road;
 mod states;

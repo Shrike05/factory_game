@@ -1,3 +1,4 @@
+use crate::globals::world_to_grid;
 use crate::preview::types::*;
 use crate::road::{Road, RoadAssets, RoadConstructor};
 use crate::terrain::BuildSelection;
@@ -57,10 +58,10 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
             Some(pos) => {
                 tran.translation.x = pos.x as f32;
                 tran.translation.z = pos.y as f32;
-                if !params.build_map.overlaps(&vec![IVec2::new(
-                    tran.translation.x as i32,
-                    tran.translation.z as i32,
-                )]) {
+                if !params
+                    .build_map
+                    .overlaps(&vec![world_to_grid(&tran.translation)])
+                {
                     mat.0 = params.prev_mat.normal_mat.clone();
                 } else {
                     mat.0 = params.prev_mat.warning_mat.clone();
