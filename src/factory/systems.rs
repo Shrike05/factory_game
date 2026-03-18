@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::factory::{types::Factory, *};
+use crate::globals::*;
 use crate::terrain::BuildabilityMap;
 
 pub fn create_factory_assets(
@@ -31,7 +32,7 @@ pub fn spawn_factories(
             Transform::from_xyz(factory.origin.x as f32, 0., factory.origin.y as f32),
         ));
 
-        let shape = fac_map.shapes[&factory.factory_type].clone();
+        let shape: Box<[GridPos]> = fac_map.shapes[&factory.factory_type].clone();
         for offset in shape {
             build_map
                 .set_real(factory.origin + offset, true)

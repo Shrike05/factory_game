@@ -1,3 +1,4 @@
+use crate::globals::*;
 use bevy::prelude::*;
 use clap::ValueEnum;
 use std::collections::HashMap;
@@ -10,7 +11,7 @@ pub enum FactoryType {
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub struct Factory {
-    pub origin: IVec2,
+    pub origin: GridPos,
     pub factory_type: FactoryType,
 }
 
@@ -22,17 +23,17 @@ pub struct FactoryAssets {
 
 #[derive(Resource)]
 pub struct FactoryMap {
-    pub shapes: HashMap<FactoryType, Box<[IVec2]>>,
+    pub shapes: HashMap<FactoryType, Box<[GridPos]>>,
 }
 
 #[derive(Message)]
 pub struct NewFactoryEvent {
-    pub pos: IVec2,
+    pub pos: GridPos,
     pub factory_type: FactoryType,
 }
 
 impl NewFactoryEvent {
-    pub fn new(pos: IVec2, factory_type: FactoryType) -> NewFactoryEvent {
+    pub fn new(pos: GridPos, factory_type: FactoryType) -> NewFactoryEvent {
         NewFactoryEvent { pos, factory_type }
     }
 }
@@ -42,17 +43,26 @@ impl FactoryMap {
         let mut factory_map = HashMap::new();
         factory_map.insert(
             FactoryType::Empty,
-            vec![IVec2::new(0, 0)].into_boxed_slice(),
+            vec![GridPos::new(0, 0)].into_boxed_slice(),
         );
 
         FactoryMap {
             shapes: factory_map,
         }
     }
+
+    pub fn get_grid_tiles(&self, pos: &GridPos, factory_type: &FactoryType) -> Vec<GridPos> {
+        let shape = self.shapes.get(factory_type).expect(&format!(
+            "Factory '{:?}' doesn't have a shape",
+            factory_type
+        ));
+
+        shape.iter().map(|x| *x + *pos).collect()
+    }
 }
 
 impl Factory {
-    pub fn new(origin: IVec2, factory_type: FactoryType) -> Factory {
+    pub fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
         Factory {
             origin,
             factory_type,

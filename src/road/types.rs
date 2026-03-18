@@ -1,21 +1,21 @@
-use std::collections::HashMap;
-
+use crate::globals::*;
 use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
+use std::collections::HashMap;
 
 const SEARCH_DEPTH: u32 = 100;
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RoadConstructor {
-    start: Option<IVec2>,
-    waypoints: Vec<IVec2>,
-    end: Option<IVec2>,
+    start: Option<GridPos>,
+    waypoints: Vec<GridPos>,
+    end: Option<GridPos>,
 }
 
 #[derive(Message, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum BuildRoadMessage {
-    Start(IVec2),
-    End(IVec2),
+    Start(GridPos),
+    End(GridPos),
 }
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq)]
@@ -26,13 +26,13 @@ pub struct RoadAssets {
 
 #[derive(Component, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct Road {
-    start: IVec2,
-    waypoints: Box<[IVec2]>,
-    end: IVec2,
+    start: GridPos,
+    waypoints: Box<[GridPos]>,
+    end: GridPos,
 }
 
 impl Road {
-    pub fn new(points: Vec<IVec2>) -> Result<Road> {
+    pub fn new(points: Vec<GridPos>) -> Result<Road> {
         if points.len() < 2 {
             error!("Too few points");
         }
@@ -54,39 +54,43 @@ impl Road {
         }
     }
 
-    pub fn real_pos(pos: &IVec2) -> Vec3 {
+    pub fn real_pos(pos: &GridPos) -> Vec3 {
         Vec3::new(pos.x as f32, 0., pos.y as f32)
     }
 
     pub fn create_candidate_road(
-        start: &IVec2,
-        end: &IVec2,
+        start_real: &GridPos,
+        end_real: &GridPos,
         filter_map: BuildabilityMap,
-    ) -> Option<Vec<IVec2>> {
-        if filter_map.get(end.x, end.y) {
+    ) -> Option<Vec<GridPos>> {
+        let start = IVec2::new(start_real.x as i32, start_real.y as i32);
+        let end = IVec2::new(end_real.x as i32, end_real.y as i32);
+
+        if filter_map.get(end_real.x, end_real.y) {
             return None;
         }
 
         let h = |x: IVec2| (end.x - x.x).abs() + (end.y - x.y).abs();
-        let mut next_to_search: Vec<IVec2> = vec![*start];
+        let mut next_to_search: Vec<IVec2> = vec![start];
         let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
 
         let mut came_from: HashMap<IVec2, IVec2> = HashMap::new();
 
         let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
-        g_scores.insert(*start, 0);
+        g_scores.insert(start, 0);
 
         let mut current_depth = 0_u32;
         while !next_to_search.is_empty() && current_depth < SEARCH_DEPTH {
             current_depth += 1;
 
             let current = next_to_search.remove(0);
-            if current == *end {
-                let mut total_path = vec![current];
+            if current == end {
+                let mut total_path = vec![GridPos::new(current.x as u32, current.y as u32)];
                 let mut backward = current;
                 while came_from.contains_key(&backward) {
                     backward = came_from[&backward];
-                    total_path.push(backward);
+                    let backward_gridpos = UVec2::new(backward.x as u32, backward.y as u32);
+                    total_path.push(backward_gridpos);
                 }
                 return Some(total_path);
             }
@@ -99,7 +103,10 @@ impl Road {
             ]
             .iter()
             .filter_map(|neighbour| {
-                if neighbour.x < 0 || neighbour.y < 0 || filter_map.get(neighbour.x, neighbour.y) {
+                if neighbour.x < 0
+                    || neighbour.y < 0
+                    || filter_map.get(neighbour.x as u32, neighbour.y as u32)
+                {
                     None
                 } else {
                     Some(*neighbour)
@@ -155,7 +162,7 @@ impl Road {
 
 #[allow(unused)]
 impl RoadConstructor {
-    pub fn new(start: IVec2, waypoints: Vec<IVec2>, end: IVec2) -> Self {
+    pub fn new(start: GridPos, waypoints: Vec<GridPos>, end: GridPos) -> Self {
         RoadConstructor {
             start: Some(start),
             waypoints,
@@ -171,7 +178,7 @@ impl RoadConstructor {
         }
     }
 
-    pub fn start_new(start: IVec2) -> Self {
+    pub fn start_new(start: GridPos) -> Self {
         RoadConstructor {
             start: Some(start),
             waypoints: vec![],
@@ -179,23 +186,23 @@ impl RoadConstructor {
         }
     }
 
-    pub fn add_waypoints(&mut self, points: &mut dyn Iterator<Item = IVec2>) {
+    pub fn add_waypoints(&mut self, points: &mut dyn Iterator<Item = GridPos>) {
         points.for_each(|point| self.waypoints.push(point));
     }
 
-    pub fn get_start(&self) -> &Option<IVec2> {
+    pub fn get_start(&self) -> &Option<GridPos> {
         &self.start
     }
-    pub fn get_end(&self) -> &Option<IVec2> {
+    pub fn get_end(&self) -> &Option<GridPos> {
         &self.end
     }
-    pub fn get_waypoints(&self) -> &Vec<IVec2> {
+    pub fn get_waypoints(&self) -> &Vec<GridPos> {
         &self.waypoints
     }
-    pub fn set_start(&mut self, start: IVec2) {
+    pub fn set_start(&mut self, start: GridPos) {
         self.start = Some(start);
     }
-    pub fn set_end(&mut self, end: IVec2) {
+    pub fn set_end(&mut self, end: GridPos) {
         self.end = Some(end);
     }
 
@@ -203,7 +210,7 @@ impl RoadConstructor {
         self.start.is_some() && self.end.is_some()
     }
 
-    pub fn get_list(&self) -> Vec<IVec2> {
+    pub fn get_list(&self) -> Vec<GridPos> {
         let mut result = self.waypoints.clone();
 
         if let Some(end) = self.end {

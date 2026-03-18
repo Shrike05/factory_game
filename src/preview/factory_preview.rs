@@ -1,3 +1,4 @@
+use crate::globals::*;
 use crate::preview::types::*;
 use crate::terrain::BuildSelection;
 use crate::{
@@ -54,15 +55,7 @@ pub fn preview_factory(
     if let BuildSelection::Factory(fac_type) = *build_select {
         mesh.0 = fac_assets.mesh.clone();
 
-        let tiles = fac_map.shapes[&fac_type]
-            .iter()
-            .map(|x| {
-                IVec2::new(
-                    x.x + tran.translation.x as i32,
-                    x.y + tran.translation.z as i32,
-                )
-            })
-            .collect();
+        let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
         if !build_map.overlaps(&tiles) {
             mat.0 = prev_mat.normal_mat.clone();
         } else {

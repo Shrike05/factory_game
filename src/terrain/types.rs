@@ -1,21 +1,17 @@
-use std::fmt::write;
-
-use crate::{
-    factory::FactoryType,
-    terrain::{SIZE, SIZE_SQUARED},
-};
-use bevy::{log::tracing_subscriber::fmt, prelude::*};
+use crate::factory::FactoryType;
+use crate::globals::*;
+use bevy::prelude::*;
 use bitmaps::Bitmap;
 
 #[derive(Resource, Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct HoveredTile {
-    pub pos: IVec2,
+    pub pos: GridPos,
     pub hovering: bool,
 }
 
 #[derive(Message, Clone, Copy, Debug, PartialEq, Eq)]
 pub struct BuildMessage {
-    pub pos: IVec2,
+    pub pos: GridPos,
 }
 
 #[derive(Resource, Clone, Copy, Hash, Debug, PartialEq, Eq)]
@@ -31,32 +27,32 @@ pub enum BuildSelection {
 }
 
 impl BuildMessage {
-    pub fn new(pos: IVec2) -> BuildMessage {
+    pub fn new(pos: GridPos) -> BuildMessage {
         BuildMessage { pos }
     }
 
-    pub fn get_pos(&self) -> &IVec2 {
+    pub fn get_pos(&self) -> &GridPos {
         &self.pos
     }
 }
 
 impl BuildabilityMap {
-    fn pos_to_index(&self, x: i32, y: i32) -> usize {
+    fn pos_to_index(&self, x: u32, y: u32) -> usize {
         y as usize * SIZE + x as usize
     }
 
-    pub fn get(&self, x: i32, y: i32) -> bool {
-        if x >= SIZE as i32 || x < 0 || y >= SIZE as i32 || y < 0 {
+    pub fn get(&self, x: u32, y: u32) -> bool {
+        if x >= SIZE as u32 || y >= SIZE as u32 {
             return false;
         }
         self.map.get(self.pos_to_index(x, y))
     }
 
-    pub fn overlaps(&self, tiles: &Vec<IVec2>) -> bool {
+    pub fn overlaps(&self, tiles: &[GridPos]) -> bool {
         tiles.iter().any(|tile| self.get(tile.x, tile.y))
     }
 
-    pub fn set_real(&mut self, pos: IVec2, val: bool) -> Result<()> {
+    pub fn set_real(&mut self, pos: GridPos, val: bool) -> Result<()> {
         let index = self.pos_to_index(pos.x, pos.y);
 
         if index >= SIZE_SQUARED {
