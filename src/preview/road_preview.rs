@@ -1,7 +1,7 @@
 use crate::globals::world_to_grid;
 use crate::preview::types::*;
 use crate::road::{Road, RoadAssets, RoadConstructor};
-use crate::terrain::BuildSelection;
+use crate::states::BuildSelection;
 use crate::terrain::{BuildabilityMap, HoveredTile};
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
@@ -22,7 +22,7 @@ pub struct RoadPreviewParams<'w, 's> {
     pub build_map: Res<'w, BuildabilityMap>,
     pub road_assets: Res<'w, RoadAssets>,
     pub prev_mat: Res<'w, PreviewAssets>,
-    pub build_select: Res<'w, BuildSelection>,
+    pub build_select: Res<'w, State<BuildSelection>>,
     pub road_constructor: Res<'w, RoadConstructor>,
     pub hovered_tile: Res<'w, HoveredTile>,
 }
@@ -60,7 +60,7 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
                 tran.translation.z = pos.y as f32;
                 if !params
                     .build_map
-                    .overlaps(&vec![world_to_grid(&tran.translation)])
+                    .overlaps(&[world_to_grid(&tran.translation)])
                 {
                     mat.0 = params.prev_mat.normal_mat.clone();
                 } else {
@@ -85,4 +85,15 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
             PreviewRoad,
         ));
     }
+}
+
+pub fn stop_build_road(
+    mut road_constructor: ResMut<RoadConstructor>,
+    mut pre_query: Query<&mut Visibility, With<PreviewRoad>>,
+) {
+    for mut vis in pre_query.iter_mut() {
+        *vis = Visibility::Hidden;
+    }
+
+    *road_constructor = RoadConstructor::empty();
 }

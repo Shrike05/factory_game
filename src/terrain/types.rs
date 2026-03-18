@@ -1,4 +1,3 @@
-use crate::factory::FactoryType;
 use crate::globals::*;
 use bevy::prelude::*;
 use bitmaps::Bitmap;
@@ -17,13 +16,6 @@ pub struct BuildMessage {
 #[derive(Resource, Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub struct BuildabilityMap {
     pub map: Bitmap<SIZE_SQUARED>,
-}
-
-#[derive(Resource, Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum BuildSelection {
-    Factory(FactoryType),
-    Road,
-    None,
 }
 
 impl BuildMessage {

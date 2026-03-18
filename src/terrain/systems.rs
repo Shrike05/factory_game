@@ -1,6 +1,7 @@
 use crate::factory::{FactoryMap, FactoryType, NewFactoryEvent};
 use crate::globals::*;
 use crate::road::*;
+use crate::states::BuildSelection;
 use crate::terrain::types::BuildMessage;
 use crate::terrain::*;
 use bevy::prelude::*;
@@ -59,7 +60,7 @@ pub fn build_event(
     fac_map: Res<FactoryMap>,
     build_map: Res<BuildabilityMap>,
     mut road_constructor: ResMut<RoadConstructor>,
-    build_selection: Res<BuildSelection>,
+    build_selection: Res<State<BuildSelection>>,
 ) {
     for build_ev in ev.read() {
         let tiles: Vec<GridPos> = fac_map.shapes[&FactoryType::Empty]
@@ -67,7 +68,7 @@ pub fn build_event(
             .map(|x| x + build_ev.get_pos())
             .collect();
 
-        match *build_selection {
+        match **build_selection {
             BuildSelection::Factory(fac_type) => {
                 if !build_map.overlaps(&tiles) {
                     fac_writer.write(NewFactoryEvent::new(*build_ev.get_pos(), fac_type));

@@ -1,13 +1,13 @@
 use crate::globals::*;
 use crate::preview::types::*;
-use crate::terrain::BuildSelection;
+use crate::states::BuildSelection;
 use crate::{
     factory::{FactoryAssets, FactoryMap},
     terrain::{BuildabilityMap, HoveredTile},
 };
 use bevy::prelude::*;
 
-pub fn init_preview(
+pub fn init_factory_preview(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
@@ -44,7 +44,7 @@ pub fn preview_factory(
     fac_map: Res<FactoryMap>,
     build_map: Res<BuildabilityMap>,
     prev_mat: Res<PreviewAssets>,
-    build_select: Res<BuildSelection>,
+    build_select: Res<State<BuildSelection>>,
     hovered_tile: Res<HoveredTile>,
 ) {
     let (mut mesh, mut mat, mut tran, mut vis) = pre_query
@@ -52,7 +52,7 @@ pub fn preview_factory(
         .next()
         .expect("Preview not initialized");
 
-    if let BuildSelection::Factory(fac_type) = *build_select {
+    if let BuildSelection::Factory(fac_type) = **build_select {
         mesh.0 = fac_assets.mesh.clone();
 
         let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
@@ -71,4 +71,10 @@ pub fn preview_factory(
 
     tran.translation.x = hovered_tile.pos.x as f32;
     tran.translation.z = hovered_tile.pos.y as f32;
+}
+
+pub fn stop_preview_factory(mut pre_query: Query<&mut Visibility, With<PreviewFactory>>) {
+    for mut vis in pre_query.iter_mut() {
+        *vis = Visibility::Hidden;
+    }
 }
