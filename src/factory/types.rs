@@ -11,11 +11,18 @@ pub enum FactoryType {
     Source,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 pub struct FactoryId(Entity);
+
+impl FactoryId {
+    pub fn get(&self) -> &Entity {
+        &self.0
+    }
+}
 
 #[derive(Component, Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Factory {
+    id: FactoryId,
     pub origin: GridPos,
     pub factory_type: FactoryType,
     inbound: Vec<FactoryId>,
@@ -77,8 +84,9 @@ impl FactoryMap {
 }
 
 impl Factory {
-    fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
+    fn new(id: Entity, origin: GridPos, factory_type: FactoryType) -> Factory {
         Factory {
+            id: FactoryId(id),
             origin,
             factory_type,
             inbound: vec![],
@@ -91,10 +99,9 @@ impl Factory {
         origin: GridPos,
         factory_type: FactoryType,
     ) -> EntityCommands<'a> {
-        let mut entity_commands: EntityCommands<'a> =
-            commands.spawn(Factory::new(origin, factory_type));
+        let mut entity_commands: EntityCommands<'a> = commands.spawn_empty();
         let id = entity_commands.id();
-        entity_commands.insert(FactoryId(id));
+        entity_commands.insert(Factory::new(id, origin, factory_type));
         entity_commands
     }
 }

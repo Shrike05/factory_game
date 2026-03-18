@@ -30,5 +30,12 @@ pub struct Productions {
 pub struct Production;
 
 impl Production {
-    fn validate(commands: &mut Commands, factory: FactoryId) {}
+    fn validate<'w, 's>(factories_query: &Query<'w, 's, &Factory>, factory_id: FactoryId) {
+        let factory = factories_query
+            .get(*factory_id.get())
+            .expect("FactoryId doesn't have corresponding Factory");
+        //Base case
+
+        //Recurse
+    }
 }
