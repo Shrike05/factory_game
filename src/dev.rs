@@ -28,6 +28,7 @@ enum BuildSelectionVariants {
         #[arg(value_enum)]
         kind: FactoryType,
     },
+    None,
 }
 
 pub fn build_selection_command(
@@ -39,6 +40,7 @@ pub fn build_selection_command(
             let selection = match build_selection_parser.command {
                 BuildSelectionVariants::Road => BuildSelection::Road,
                 BuildSelectionVariants::Factory { kind } => BuildSelection::Factory(kind),
+                BuildSelectionVariants::None => BuildSelection::None,
             };
 
             build_selection_state.set(selection);

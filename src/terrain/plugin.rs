@@ -8,7 +8,6 @@ pub struct TerrainPlugin;
 
 impl Plugin for TerrainPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(BuildSelection::Road);
         app.insert_resource(BuildabilityMap { map: Bitmap::new() });
         app.insert_resource(HoveredTile {
             pos: GridPos::new(0, 0),
