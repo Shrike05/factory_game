@@ -4,6 +4,7 @@ use clap::ValueEnum;
 use std::{collections::HashMap, sync::Arc};
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
+#[repr(usize)]
 pub enum FactoryType {
     #[default]
     Empty,
@@ -25,8 +26,8 @@ pub struct Factory {
     id: FactoryId,
     pub origin: GridPos,
     pub factory_type: FactoryType,
-    inbound: Vec<FactoryId>,
-    outbound: Vec<FactoryId>,
+    pub inbound: Vec<FactoryId>,
+    pub outbound: Vec<FactoryId>,
 }
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq)]
