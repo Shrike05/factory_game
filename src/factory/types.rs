@@ -1,7 +1,37 @@
 use crate::globals::*;
 use bevy::prelude::*;
 use clap::ValueEnum;
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct FactoryAttributes {
+    pub fac_type: FactoryType,
+    pub shape: &'static [GridPos],
+}
+
+pub static FACTORY_ATTRIBUTES: [FactoryAttributes; 3] = [
+    FactoryAttributes {
+        fac_type: FactoryType::Empty,
+        shape: &[GridPos::new(0, 0)],
+    },
+    FactoryAttributes {
+        fac_type: FactoryType::Sink,
+        shape: &[GridPos::new(0, 0)],
+    },
+    FactoryAttributes {
+        fac_type: FactoryType::Source,
+        shape: &[GridPos::new(0, 0)],
+    },
+];
+
+pub fn get_grid_tiles(pos: &GridPos, factory_type: &FactoryType) -> Vec<GridPos> {
+    let shape = FACTORY_ATTRIBUTES[*factory_type as usize].shape;
+    shape.iter().map(|x| *x + *pos).collect()
+}
+
+pub fn get_factory_attributes(factory_type: &FactoryType) -> FactoryAttributes {
+    FACTORY_ATTRIBUTES[*factory_type as usize]
+}
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
 #[repr(usize)]
@@ -36,11 +66,6 @@ pub struct FactoryAssets {
     pub materials: HashMap<FactoryType, Handle<StandardMaterial>>,
 }
 
-#[derive(Resource)]
-pub struct FactoryMap {
-    pub shapes: HashMap<FactoryType, Box<[GridPos]>>,
-}
-
 #[derive(Message)]
 pub struct NewFactoryEvent {
     pub pos: GridPos,
@@ -50,37 +75,6 @@ pub struct NewFactoryEvent {
 impl NewFactoryEvent {
     pub fn new(pos: GridPos, factory_type: FactoryType) -> NewFactoryEvent {
         NewFactoryEvent { pos, factory_type }
-    }
-}
-
-impl FactoryMap {
-    pub fn init_factory_map() -> FactoryMap {
-        let mut factory_map = HashMap::new();
-        factory_map.insert(
-            FactoryType::Empty,
-            vec![GridPos::new(0, 0)].into_boxed_slice(),
-        );
-        factory_map.insert(
-            FactoryType::Sink,
-            vec![GridPos::new(0, 0)].into_boxed_slice(),
-        );
-        factory_map.insert(
-            FactoryType::Source,
-            vec![GridPos::new(0, 0)].into_boxed_slice(),
-        );
-
-        FactoryMap {
-            shapes: factory_map,
-        }
-    }
-
-    pub fn get_grid_tiles(&self, pos: &GridPos, factory_type: &FactoryType) -> Vec<GridPos> {
-        let shape = self
-            .shapes
-            .get(factory_type)
-            .expect("Factory doesn't have a shape");
-
-        shape.iter().map(|x| *x + *pos).collect()
     }
 }
 

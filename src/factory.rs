@@ -5,4 +5,7 @@ mod systems;
 mod types;
 
 pub use self::plugin::FactoryPlugin;
-pub use self::types::{FactoryAssets, FactoryMap, FactoryType, NewFactoryEvent};
+pub use self::types::{
+    FACTORY_ATTRIBUTES, FactoryAssets, FactoryType, NewFactoryEvent, get_factory_attributes,
+    get_grid_tiles,
+};

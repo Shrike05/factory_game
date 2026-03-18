@@ -1,8 +1,9 @@
+use crate::factory::get_grid_tiles;
 use crate::globals::*;
 use crate::preview::types::*;
 use crate::states::BuildSelection;
 use crate::{
-    factory::{FactoryAssets, FactoryMap, FactoryType},
+    factory::{FactoryAssets, FactoryType},
     terrain::{BuildabilityMap, HoveredTile},
 };
 use bevy::prelude::*;
@@ -41,7 +42,6 @@ pub fn preview_factory(
         With<PreviewFactory>,
     >,
     fac_assets: Res<FactoryAssets>,
-    fac_map: Res<FactoryMap>,
     build_map: Res<BuildabilityMap>,
     prev_mat: Res<PreviewAssets>,
     build_select: Res<State<BuildSelection>>,
@@ -55,7 +55,7 @@ pub fn preview_factory(
     if let BuildSelection::Factory(fac_type) = **build_select {
         mesh.0 = fac_assets.meshes.get(&FactoryType::Empty).unwrap().clone();
 
-        let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
+        let tiles = get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
         if !build_map.overlaps(&tiles) {
             mat.0 = prev_mat.normal_mat.clone();
         } else {

@@ -1,4 +1,4 @@
-use crate::factory::{FactoryMap, FactoryType, NewFactoryEvent};
+use crate::factory::{FactoryType, NewFactoryEvent, get_factory_attributes};
 use crate::globals::*;
 use crate::road::*;
 use crate::states::BuildSelection;
@@ -57,13 +57,13 @@ pub fn build_event(
     mut ev: MessageReader<BuildMessage>,
     mut fac_writer: MessageWriter<NewFactoryEvent>,
     mut road_writer: MessageWriter<BuildRoadMessage>,
-    fac_map: Res<FactoryMap>,
     build_map: Res<BuildabilityMap>,
     mut road_constructor: ResMut<RoadConstructor>,
     build_selection: Res<State<BuildSelection>>,
 ) {
     for build_ev in ev.read() {
-        let tiles: Vec<GridPos> = fac_map.shapes[&FactoryType::Empty]
+        let tiles: Vec<GridPos> = get_factory_attributes(&FactoryType::Empty)
+            .shape
             .iter()
             .map(|x| x + build_ev.get_pos())
             .collect();

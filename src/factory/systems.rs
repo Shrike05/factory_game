@@ -30,7 +30,6 @@ pub fn spawn_factories(
     fac_assets: Res<FactoryAssets>,
     mut msg: MessageReader<NewFactoryEvent>,
     mut build_map: ResMut<BuildabilityMap>,
-    fac_map: Res<FactoryMap>,
 ) {
     for message in msg.read() {
         let mut factory = Factory::spawn(&mut commands, message.pos, message.factory_type);
@@ -47,7 +46,7 @@ pub fn spawn_factories(
             Transform::from_xyz(message.pos.x as f32, 0., message.pos.y as f32),
         ));
 
-        let shape: Box<[GridPos]> = fac_map.shapes[&message.factory_type].clone();
+        let shape: &[GridPos] = get_factory_attributes(&message.factory_type).shape;
         for offset in shape {
             build_map
                 .set_real(message.pos + offset, true)
