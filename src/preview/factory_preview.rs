@@ -2,7 +2,7 @@ use crate::globals::*;
 use crate::preview::types::*;
 use crate::states::BuildSelection;
 use crate::{
-    factory::{FactoryAssets, FactoryMap},
+    factory::{FactoryAssets, FactoryMap, FactoryType},
     terrain::{BuildabilityMap, HoveredTile},
 };
 use bevy::prelude::*;
@@ -53,7 +53,7 @@ pub fn preview_factory(
         .expect("Preview not initialized");
 
     if let BuildSelection::Factory(fac_type) = **build_select {
-        mesh.0 = fac_assets.mesh.clone();
+        mesh.0 = fac_assets.meshes.get(&FactoryType::Empty).unwrap().clone();
 
         let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
         if !build_map.overlaps(&tiles) {

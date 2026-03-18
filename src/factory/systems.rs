@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bevy::prelude::*;
 
 use crate::factory::{types::Factory, *};
@@ -9,10 +11,18 @@ pub fn create_factory_assets(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    commands.insert_resource(FactoryAssets {
-        mesh: meshes.add(Cuboid::new(1., 1., 1.)),
-        material: materials.add(Color::srgb(1., 1., 1.)),
-    });
+    let mesh = meshes.add(Cuboid::new(1., 1., 1.));
+    let w_material = materials.add(Color::srgb(1., 1., 1.));
+    let r_material = materials.add(Color::srgb(1., 0., 0.));
+    let g_material = materials.add(Color::srgb(0., 1., 0.));
+
+    let mut meshes = HashMap::new();
+    meshes.insert(FactoryType::Empty, mesh);
+    let mut materials = HashMap::new();
+    materials.insert(FactoryType::Empty, w_material);
+    materials.insert(FactoryType::Source, g_material);
+    materials.insert(FactoryType::Sink, r_material);
+    commands.insert_resource(FactoryAssets { meshes, materials });
 }
 
 pub fn spawn_factories(
@@ -27,8 +37,14 @@ pub fn spawn_factories(
 
         commands.spawn((
             factory,
-            Mesh3d(fac_assets.mesh.clone()),
-            MeshMaterial3d(fac_assets.material.clone()),
+            Mesh3d(fac_assets.meshes.get(&FactoryType::Empty).unwrap().clone()),
+            MeshMaterial3d(
+                fac_assets
+                    .materials
+                    .get(&message.factory_type)
+                    .unwrap()
+                    .clone(),
+            ),
             Transform::from_xyz(factory.origin.x as f32, 0., factory.origin.y as f32),
         ));
 

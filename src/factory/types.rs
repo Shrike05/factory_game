@@ -7,6 +7,8 @@ use std::collections::HashMap;
 pub enum FactoryType {
     #[default]
     Empty,
+    Sink,
+    Source,
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
@@ -17,8 +19,8 @@ pub struct Factory {
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq)]
 pub struct FactoryAssets {
-    pub mesh: Handle<Mesh>,
-    pub material: Handle<StandardMaterial>,
+    pub meshes: HashMap<FactoryType, Handle<Mesh>>,
+    pub materials: HashMap<FactoryType, Handle<StandardMaterial>>,
 }
 
 #[derive(Resource)]
@@ -45,6 +47,14 @@ impl FactoryMap {
             FactoryType::Empty,
             vec![GridPos::new(0, 0)].into_boxed_slice(),
         );
+        factory_map.insert(
+            FactoryType::Sink,
+            vec![GridPos::new(0, 0)].into_boxed_slice(),
+        );
+        factory_map.insert(
+            FactoryType::Source,
+            vec![GridPos::new(0, 0)].into_boxed_slice(),
+        );
 
         FactoryMap {
             shapes: factory_map,
@@ -52,10 +62,10 @@ impl FactoryMap {
     }
 
     pub fn get_grid_tiles(&self, pos: &GridPos, factory_type: &FactoryType) -> Vec<GridPos> {
-        let shape = self.shapes.get(factory_type).expect(&format!(
-            "Factory '{:?}' doesn't have a shape",
-            factory_type
-        ));
+        let shape = self
+            .shapes
+            .get(factory_type)
+            .expect("Factory doesn't have a shape");
 
         shape.iter().map(|x| *x + *pos).collect()
     }
