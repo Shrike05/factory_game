@@ -1,4 +1,3 @@
-use crate::globals::GridPos;
 use crate::globals::*;
 use crate::preview::types::*;
 use crate::terrain::BuildSelection;
