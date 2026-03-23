@@ -6,8 +6,8 @@ pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
-        app.init_asset::<GameDef>();
-        app.add_plugins(TomlAssetPlugin::<GameDef>::new(&["toml"]));
+        app.init_asset::<FactoryDef>();
+        app.add_plugins(TomlAssetPlugin::<FactoryDef>::new(&["toml"]));
         app.add_systems(Startup, setup);
         app.add_systems(Update, check_and_init_lock);
     }

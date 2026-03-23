@@ -9,5 +9,12 @@ pub struct GameDef {
 #[derive(Asset, TypePath, Deserialize, Debug, Clone)]
 pub struct FactoryDef {
     pub name: String,
-    pub value: u32,
+    pub shape: Vec<UVec2>,
+    pub recipe_book: Vec<RecipeDef>,
+}
+
+#[derive(Asset, TypePath, Deserialize, Debug, Clone)]
+pub struct RecipeDef {
+    recipe: String,
+    outputs: Vec<String>,
 }

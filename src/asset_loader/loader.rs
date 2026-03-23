@@ -2,7 +2,7 @@ use crate::asset_loader::types::*;
 use bevy::{asset::LoadedFolder, prelude::*};
 use std::sync::OnceLock;
 
-pub static DEFS: OnceLock<Vec<GameDef>> = OnceLock::new();
+pub static DEFS: OnceLock<Vec<FactoryDef>> = OnceLock::new();
 
 #[derive(Resource)]
 pub struct FolderHandle(Handle<LoadedFolder>);
@@ -15,15 +15,15 @@ pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
 pub fn check_and_init_lock(
     folder_handle: Res<FolderHandle>,
     folders: Res<Assets<LoadedFolder>>,
-    game_defs: Res<Assets<GameDef>>,
+    game_defs: Res<Assets<FactoryDef>>,
 ) {
     if let Some(folder) = folders.get(&folder_handle.0) {
-        let items: Vec<GameDef> = folder
+        let items: Vec<FactoryDef> = folder
             .handles
             .iter()
             .filter_map(|untyped_handle| {
                 // Convert UntypedHandle -> AssetId<GameDef>
-                let id = untyped_handle.id().typed::<GameDef>();
+                let id = untyped_handle.id().typed::<FactoryDef>();
                 game_defs.get(id)
             })
             .cloned()
