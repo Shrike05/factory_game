@@ -1,0 +1,7 @@
+name = "Baker"
+shape = [
+[0,0]
+]
+[[recipe_book]]
+recipe = "yellow"
+outputs = ["hello"]
