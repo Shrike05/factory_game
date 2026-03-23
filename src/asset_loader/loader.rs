@@ -1,6 +1,9 @@
-use crate::asset_loader::types::*;
+use crate::{
+    asset_loader::types::*,
+    factory::{FACTORY_ATTRIBUTES, FactoryAttributes, FactoryName},
+};
 use bevy::{asset::LoadedFolder, prelude::*};
-use std::sync::OnceLock;
+use std::{collections::HashMap, sync::OnceLock};
 
 pub static DEFS: OnceLock<Vec<FactoryDef>> = OnceLock::new();
 
@@ -28,6 +31,16 @@ pub fn check_and_init_lock(
             })
             .cloned()
             .collect();
+
+        let mut hash_map: HashMap<FactoryName, FactoryAttributes> = HashMap::new();
+
+        for item in &items {
+            let shape = item.shape.clone().into_boxed_slice();
+            let name = FactoryName::from_string(&item.name);
+            hash_map.insert(name, FactoryAttributes::new(name, shape));
+        }
+
+        let _ = FACTORY_ATTRIBUTES.set(hash_map);
 
         let _ = DEFS.set(items);
     }
