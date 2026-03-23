@@ -24,9 +24,8 @@ enum BuildSelectionVariants {
     Road,
     /// Build a factory (requires a type)
     Factory {
-        /// The type of factory to build (f1 or f2)
-        #[arg(value_enum)]
-        kind: String,
+        /// The type of factory to build
+        factory_type: String,
     },
     None,
 }
@@ -39,8 +38,8 @@ pub fn build_selection_command(
         if let Ok(build_selection_parser) = command.parse_clap::<BuildSelectionParser>() {
             let selection = match build_selection_parser.command {
                 BuildSelectionVariants::Road => BuildSelection::Road,
-                BuildSelectionVariants::Factory { kind } => {
-                    BuildSelection::Factory(FactoryName::from_string(kind))
+                BuildSelectionVariants::Factory { factory_type } => {
+                    BuildSelection::Factory(FactoryName::from_string(factory_type))
                 }
                 BuildSelectionVariants::None => BuildSelection::None,
             };

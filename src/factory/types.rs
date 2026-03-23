@@ -18,7 +18,6 @@ impl FactoryAttributes {
 pub static FACTORY_ATTRIBUTES: OnceLock<HashMap<FactoryName, FactoryAttributes>> = OnceLock::new();
 
 pub fn get_grid_tiles(pos: &GridPos, factory_name: &FactoryName) -> Vec<GridPos> {
-    println!("{:?}", FACTORY_ATTRIBUTES);
     let shape = &FACTORY_ATTRIBUTES
         .get()
         .expect("Factory Defs not ready yet")
