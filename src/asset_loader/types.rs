@@ -15,10 +15,15 @@ pub struct FactoryDef {
     pub mesh: String,
 }
 
-#[derive(Asset, TypePath, Deserialize, Debug, Clone)]
+#[derive(TypePath, Deserialize, Debug, Clone)]
 pub struct RecipeDef {
     recipe: String,
     outputs: Vec<String>,
+}
+
+#[derive(Asset, TypePath, Deserialize, Debug, Clone)]
+pub struct ItemDef {
+    pub name: String,
 }
 
 #[derive(States, Clone, Copy, Debug, Hash, PartialEq, Eq, Default)]

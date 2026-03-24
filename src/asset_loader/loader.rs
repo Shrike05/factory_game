@@ -13,7 +13,7 @@ pub struct FolderHandle(Handle<LoadedFolder>);
 
 pub fn setup(mut commands: Commands, asset_server: Res<AssetServer>) {
     info!("Setup");
-    let asset_handle = asset_server.load_folder("defs");
+    let asset_handle = asset_server.load_folder("defs/factories");
     commands.insert_resource(FolderHandle(asset_handle));
 }
 
@@ -22,12 +22,8 @@ pub fn check_and_init_lock(
     folders: Res<Assets<LoadedFolder>>,
     game_defs: Res<Assets<FactoryDef>>,
     mut next_load_state: ResMut<NextState<LoadState>>,
-    ass: Res<AssetServer>,
 ) {
-    let r = ass.load_state(folder_handle.0.id());
-    info!("{:?}", r);
     if let Some(folder) = folders.get(&folder_handle.0) {
-        info!("Running");
         let items: Vec<FactoryDef> = folder
             .handles
             .iter()

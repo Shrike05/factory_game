@@ -1,14 +1,14 @@
+use std::collections::HashMap;
+
 use crate::factory::*;
 use bevy::prelude::*;
 
-type Inventory<'w, 's> = Query<'w, 's, ItemComponent>;
-
-#[derive(Component, Clone, Copy, Debug, PartialEq, Eq)]
-pub struct ItemComponent {
-    item_type: ItemType,
+#[derive(Resource, Clone, Debug, PartialEq, Eq)]
+pub struct Inventory {
+    items: HashMap<ItemType, u64>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum ItemType {
     Empty,
 }

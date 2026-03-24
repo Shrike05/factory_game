@@ -52,14 +52,10 @@ pub fn preview_factory(
         .next()
         .expect("Preview not initialized");
 
-    if let BuildSelection::Factory(fac_type) = **build_select {
-        mesh.0 = fac_assets
-            .meshes
-            .get(&FactoryName::from_string("Empty"))
-            .unwrap()
-            .clone();
+    if let BuildSelection::Factory(fac_name) = **build_select {
+        mesh.0 = fac_assets.meshes.get(&fac_name).unwrap().clone();
 
-        let tiles = get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
+        let tiles = get_grid_tiles(&world_to_grid(&tran.translation), &fac_name);
         if !build_map.overlaps(&tiles) {
             mat.0 = prev_mat.normal_mat.clone();
         } else {
