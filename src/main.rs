@@ -14,6 +14,8 @@ mod states;
 mod terrain;
 mod ui;
 
+pub use asset_loader::LoadState;
+
 fn main() {
     #[cfg(feature = "dev_tools")]
     setup_logger();

@@ -2747,6 +2747,7 @@ dependencies = [
  "bevy_devtools",
  "bitmaps",
  "clap",
+ "log",
  "regex",
  "serde",
 ]

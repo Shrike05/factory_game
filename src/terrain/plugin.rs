@@ -1,3 +1,4 @@
+use crate::LoadState;
 use crate::globals::GridPos;
 use crate::terrain::systems::*;
 use crate::terrain::types::*;
@@ -13,8 +14,8 @@ impl Plugin for TerrainPlugin {
             pos: GridPos::new(0, 0),
             hovering: false,
         });
-        app.add_systems(Startup, spawn_terrain);
+        app.add_systems(OnEnter(LoadState::Ready), spawn_terrain);
         app.add_message::<BuildMessage>();
-        app.add_systems(Update, build_event);
+        app.add_systems(Update, build_event.run_if(in_state(LoadState::Ready)));
     }
 }

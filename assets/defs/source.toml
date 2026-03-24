@@ -1,0 +1,9 @@
+name = "Source"
+shape = [
+[0,0]
+]
+mesh = "Cube"
+material = "green"
+[[recipe_book]]
+recipe = ""
+outputs = ["Any"]
