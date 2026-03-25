@@ -10,7 +10,6 @@ mod factory;
 mod preview;
 mod road;
 mod states;
-mod terrain;
 mod ui;
 
 fn main() {
