@@ -1,11 +1,10 @@
-use crate::{
-    road::{
-        BuildRoadMessage, RoadConstructor,
-        types::{Road, RoadAssets},
-    },
-    terrain::BuildabilityMap,
+use crate::road::{
+    BuildRoadMessage, RoadConstructor,
+    types::{Road, RoadAssets},
 };
+use crate::states::*;
 use bevy::prelude::*;
+use bevy_terrain::*;
 
 pub fn create_road_assets(
     mut commands: Commands,
@@ -37,6 +36,22 @@ pub fn spawn_road(
             );
 
             *road_constructor = RoadConstructor::empty();
+        }
+    }
+}
+
+pub fn build_road_event(
+    mut ev: MessageReader<TileClickedMessage>,
+    mut road_writer: MessageWriter<BuildRoadMessage>,
+    mut road_constructor: ResMut<RoadConstructor>,
+) {
+    for build_ev in ev.read() {
+        if road_constructor.get_start().is_some() {
+            road_writer.write(BuildRoadMessage::End(*build_ev.get_pos()));
+            road_constructor.set_end(*build_ev.get_pos());
+        } else {
+            road_writer.write(BuildRoadMessage::Start(*build_ev.get_pos()));
+            road_constructor.set_start(*build_ev.get_pos());
         }
     }
 }

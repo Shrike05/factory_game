@@ -1,10 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    factory::{
-        systems::{create_factory_assets, spawn_factories},
-        *,
-    },
+    factory::{systems::*, *},
     states,
 };
 
@@ -16,7 +13,7 @@ impl Plugin for FactoryPlugin {
         app.add_systems(Startup, create_factory_assets);
         app.add_systems(
             Update,
-            spawn_factories.run_if(in_state(states::InFactoryMode::True)),
+            (spawn_factories, build_factory_event).run_if(in_state(states::InFactoryMode::True)),
         );
         app.add_message::<NewFactoryEvent>();
     }

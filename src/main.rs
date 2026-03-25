@@ -7,11 +7,9 @@ mod camera;
 #[cfg(feature = "dev_tools")]
 mod dev;
 mod factory;
-mod globals;
 mod preview;
 mod road;
 mod states;
-mod terrain;
 mod ui;
 
 fn main() {
@@ -25,7 +23,7 @@ fn main() {
         factory::FactoryPlugin,
         camera::CameraPlugin,
         road::RoadPlugin,
-        terrain::TerrainPlugin,
+        bevy_terrain::TerrainPlugin::new(4),
         MeshPickingPlugin,
         preview::PreviewPlugin,
         asset_loader::AssetLoaderPlugin,

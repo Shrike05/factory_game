@@ -1,8 +1,7 @@
-use bevy::prelude::*;
-
 use crate::factory::{types::Factory, *};
-use crate::globals::*;
-use crate::terrain::BuildabilityMap;
+use crate::states::*;
+use bevy::prelude::*;
+use bevy_terrain::*;
 
 pub fn create_factory_assets(
     mut commands: Commands,
@@ -37,6 +36,27 @@ pub fn spawn_factories(
             build_map
                 .set_real(factory.origin + offset, true)
                 .expect("Couldn't set factory to the build_map");
+        }
+    }
+}
+
+pub fn build_factory_event(
+    mut ev: MessageReader<TileClickedMessage>,
+    mut fac_writer: MessageWriter<NewFactoryEvent>,
+    fac_map: Res<FactoryMap>,
+    build_map: Res<BuildabilityMap>,
+    build_selection: Res<State<BuildSelection>>,
+) {
+    for build_ev in ev.read() {
+        let tiles: Vec<GridPos> = fac_map.shapes[&FactoryType::Empty]
+            .iter()
+            .map(|x| x + build_ev.get_pos())
+            .collect();
+
+        if !build_map.overlaps(&tiles)
+            && let BuildSelection::Factory(fac_type) = **build_selection
+        {
+            fac_writer.write(NewFactoryEvent::new(*build_ev.get_pos(), fac_type));
         }
     }
 }
