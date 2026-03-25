@@ -1,6 +1,5 @@
-use crate::globals::*;
-use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
+use bevy_terrain::*;
 use std::collections::HashMap;
 
 const SEARCH_DEPTH: u32 = 100;

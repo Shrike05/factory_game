@@ -1,5 +1,5 @@
-use crate::globals::*;
 use bevy::prelude::*;
+use bevy_terrain::*;
 use clap::ValueEnum;
 use std::collections::HashMap;
 

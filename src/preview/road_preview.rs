@@ -1,10 +1,9 @@
-use crate::globals::world_to_grid;
 use crate::preview::types::*;
 use crate::road::{Road, RoadAssets, RoadConstructor};
 use crate::states::BuildSelection;
-use crate::terrain::{BuildabilityMap, HoveredTile};
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
+use bevy_terrain::*;
 
 #[derive(SystemParam)]
 pub struct RoadPreviewParams<'w, 's> {

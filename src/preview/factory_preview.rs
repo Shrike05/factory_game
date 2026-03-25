@@ -1,11 +1,8 @@
-use crate::globals::*;
+use crate::factory::{FactoryAssets, FactoryMap};
 use crate::preview::types::*;
 use crate::states::BuildSelection;
-use crate::{
-    factory::{FactoryAssets, FactoryMap},
-    terrain::{BuildabilityMap, HoveredTile},
-};
 use bevy::prelude::*;
+use bevy_terrain::*;
 
 pub fn init_factory_preview(
     mut commands: Commands,

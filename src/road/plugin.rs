@@ -13,7 +13,7 @@ impl Plugin for RoadPlugin {
         app.add_systems(Startup, create_road_assets);
         app.add_systems(
             Update,
-            spawn_road.run_if(in_state(states::BuildSelection::Road)),
+            (spawn_road, build_road_event).run_if(in_state(states::BuildSelection::Road)),
         );
     }
 }
