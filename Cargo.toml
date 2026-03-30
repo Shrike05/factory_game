@@ -7,10 +7,10 @@ edition = "2024"
 bevy = "0.18.0"
 bevy_devtools = { git = "https://github.com/Shrike05/bevy_devtools.git", branch = "main", optional = true }
 bevy_terrain = { git = "https://github.com/Shrike05/bevy_terrain.git", branch = "main" }
+bevy_defs_loader = { git = "https://github.com/Shrike05/bevy_defs_loader.git", branch = "main"}
 regex = "1.12.3"
 clap = {version = "4.6.0", features = ["derive"]}
 serde = "1.0.228"
-bevy_common_assets = { version = "0.16.0", features = ["toml"]}
 
 [features]
 dev_tools = ["dep:bevy_devtools"]

@@ -1,7 +1,8 @@
 use bevy::prelude::*;
+use bevy_defs_loader::DefPlugin;
 
 use crate::{
-    factory::{systems::*, *},
+    factory::{defs::FactoryDef, systems::*, *},
     states,
 };
 
@@ -16,5 +17,7 @@ impl Plugin for FactoryPlugin {
             (spawn_factories, build_factory_event).run_if(in_state(states::InFactoryMode::True)),
         );
         app.add_message::<NewFactoryEvent>();
+
+        app.add_plugins(DefPlugin::<FactoryDef>::new("defs"));
     }
 }
