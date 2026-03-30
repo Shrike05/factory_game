@@ -31,6 +31,7 @@ pub trait FactoryAttribute {
     fn get(&self, key: &FactoryName) -> &Self::Value;
     fn set(&mut self, key: FactoryName, value: Self::Value);
     fn get_map(&self) -> &HashMap<FactoryName, Self::Value>;
+    fn set_map(&mut self, value: HashMap<FactoryName, Self::Value>);
 }
 
 macro_rules! impl_factory_resource {
@@ -50,6 +51,9 @@ macro_rules! impl_factory_resource {
 
             fn get_map(&self) -> &HashMap<FactoryName, Self::Value> {
                 &self.$field_name
+            }
+            fn set_map(&mut self, value: HashMap<FactoryName, Self::Value>) {
+                self.$field_name = value;
             }
         }
     };
