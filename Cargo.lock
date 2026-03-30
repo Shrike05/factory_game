@@ -2761,7 +2761,6 @@ name = "factory"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_common_assets",
  "bevy_defs_loader",
  "bevy_devtools",
  "bevy_terrain",
