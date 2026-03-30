@@ -1,9 +1,9 @@
-use crate::factory::FactoryType;
+use crate::factory::FactoryName;
 use bevy::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default, States)]
 pub enum BuildSelection {
-    Factory(FactoryType),
+    Factory(FactoryName),
     Road,
     #[default]
     None,
