@@ -2,7 +2,6 @@ use bevy::{log::LogPlugin, prelude::*};
 #[cfg(feature = "dev_tools")]
 use bevy_devtools::*;
 
-mod asset_loader;
 mod camera;
 #[cfg(feature = "dev_tools")]
 mod dev;
@@ -10,7 +9,6 @@ mod factory;
 mod preview;
 mod road;
 mod states;
-mod ui;
 
 fn main() {
     #[cfg(feature = "dev_tools")]
@@ -26,7 +24,7 @@ fn main() {
         bevy_terrain::TerrainPlugin::new(4),
         MeshPickingPlugin,
         preview::PreviewPlugin,
-        asset_loader::AssetLoaderPlugin,
+        bevy_defs_loader::DefsPlugin,
     ))
     .init_state::<states::BuildSelection>();
 
