@@ -1,5 +1,5 @@
-use crate::factory::{FactoryAssets, FactoryMap};
-use crate::preview::types::*;
+use crate::factory::{FactoryAttribute, FactoryMeshes, FactoryShapes};
+use crate::preview::*;
 use crate::states::BuildSelection;
 use bevy::prelude::*;
 use bevy_terrain::*;
@@ -37,8 +37,8 @@ pub fn preview_factory(
         ),
         With<PreviewFactory>,
     >,
-    fac_assets: Res<FactoryAssets>,
-    fac_map: Res<FactoryMap>,
+    fac_meshes: Res<FactoryMeshes>,
+    shape_map: Res<FactoryShapes>,
     build_map: Res<BuildabilityMap>,
     prev_mat: Res<PreviewAssets>,
     build_select: Res<State<BuildSelection>>,
@@ -49,10 +49,10 @@ pub fn preview_factory(
         .next()
         .expect("Preview not initialized");
 
-    if let BuildSelection::Factory(fac_type) = **build_select {
-        mesh.0 = fac_assets.mesh.clone();
+    if let BuildSelection::Factory(factory_name) = **build_select {
+        mesh.0 = fac_meshes.get(&factory_name).clone();
 
-        let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
+        let tiles = shape_map.get_grid_tiles(&world_to_grid(&tran.translation), &factory_name);
         if !build_map.overlaps(&tiles) {
             mat.0 = prev_mat.normal_mat.clone();
         } else {

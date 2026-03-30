@@ -1,4 +1,4 @@
-use crate::{factory::FactoryType, states::BuildSelection};
+use crate::{factory::FactoryName, states::BuildSelection};
 use bevy::prelude::*;
 use bevy_devtools::TUICommand;
 use clap::*;
@@ -25,8 +25,7 @@ enum BuildSelectionVariants {
     /// Build a factory (requires a type)
     Factory {
         /// The type of factory to build (f1 or f2)
-        #[arg(value_enum)]
-        kind: FactoryType,
+        kind: String,
     },
     None,
 }
@@ -39,7 +38,9 @@ pub fn build_selection_command(
         if let Ok(build_selection_parser) = command.parse_clap::<BuildSelectionParser>() {
             let selection = match build_selection_parser.command {
                 BuildSelectionVariants::Road => BuildSelection::Road,
-                BuildSelectionVariants::Factory { kind } => BuildSelection::Factory(kind),
+                BuildSelectionVariants::Factory { kind } => {
+                    BuildSelection::Factory(FactoryName::from_string(kind))
+                }
                 BuildSelectionVariants::None => BuildSelection::None,
             };
 

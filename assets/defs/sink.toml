@@ -1,0 +1,9 @@
+name = "sink"
+shape = [
+[0,0]
+]
+mesh = "Cube"
+material = "red"
+[[recipe_book]]
+recipe = "Any"
+outputs = [""]

@@ -1,7 +1,17 @@
-name = "Baker"
+# `name` is unique and will be the identifying id for this factory
+# if name is not unique or it is `Source`/`Sink` then it will be rejected
+name = "empty"
+# A list of 2d offsets from the origin, this is the shape which the factory will enclose
 shape = [
 [0,0]
 ]
+# The material which the factory will use
+# Some default options include `red`, `green`, `white`
+material = "white"
+# The mesh which the factory will use
+# Some default options include `Cube`, `Sphere`
+mesh = "Cube"
+# A list of recipes which the factory will accept, a factory may acept several recipes
 [[recipe_book]]
 recipe = "yellow"
 outputs = ["hello"]
