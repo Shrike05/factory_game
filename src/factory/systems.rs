@@ -3,9 +3,12 @@ use crate::factory::defs::FactoryDef;
 use crate::factory::types::FactoryName;
 use crate::factory::{types::Factory, *};
 use crate::states::*;
+use crate::tile::TileAttributes;
 use bevy::prelude::*;
 use bevy_defs_loader::LoadedDefs;
 use bevy_terrain::*;
+use log::info;
+use std::collections::HashSet;
 
 pub fn create_factory_assets(
     mut meshes: ResMut<Assets<Mesh>>,
@@ -47,6 +50,7 @@ pub fn spawn_factories(
     mut msg: MessageReader<NewFactoryEvent>,
     mut build_map: ResMut<BuildabilityMap>,
     shapes_map: Res<FactoryShapes>,
+    mut tile_attrib: ResMut<TileAttributes>,
 ) {
     for message in msg.read() {
         let factory = Factory::new(message.factory_name, message.pos);
@@ -59,11 +63,30 @@ pub fn spawn_factories(
         ));
 
         let shape: Box<[GridPos]> = shapes_map.get(&factory.name).clone();
-        for offset in shape {
+        let absolute_shape = shape.iter().map(|offset| factory.origin + offset);
+        let outline = get_orthogonal_outline(
+            absolute_shape
+                .clone()
+                .map(|x| IVec2::new(x.x as i32, x.y as i32))
+                .collect::<Vec<IVec2>>()
+                .as_slice(),
+        );
+        info!("{:?}", outline);
+
+        for position in absolute_shape {
             build_map
-                .set_real(factory.origin + offset, true)
+                .set_real(position, true)
                 .expect("Couldn't set factory to the build_map");
         }
+
+        for position in outline {
+            if position.x < 0 || position.y < 0 {
+                continue;
+            }
+            let pos: UVec2 = position.as_uvec2();
+            tile_attrib.set(pos, true);
+        }
+        info!("{:?}", tile_attrib);
     }
 }
 
@@ -87,4 +110,23 @@ pub fn build_factory_event(
             fac_writer.write(NewFactoryEvent::new(*build_ev.get_pos(), fac_type));
         }
     }
+}
+
+fn get_orthogonal_outline(shape_points: &[IVec2]) -> Vec<IVec2> {
+    let point_set: HashSet<IVec2> = shape_points.iter().cloned().collect();
+
+    let directions = [
+        IVec2::new(0, 1),
+        IVec2::new(0, -1),
+        IVec2::new(1, 0),
+        IVec2::new(-1, 0),
+    ];
+
+    let outline: Vec<IVec2> = point_set
+        .iter()
+        .flat_map(|&point| directions.iter().map(move |&dir| point + dir))
+        .filter(|&point| !point_set.contains(&point))
+        .collect();
+
+    outline
 }
