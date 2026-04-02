@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_terrain::*;
 use std::collections::HashMap;
-
 const SEARCH_DEPTH: u32 = 100;
 
 #[derive(Resource, Clone, Debug, PartialEq, Eq, Hash)]
@@ -57,79 +56,22 @@ impl Road {
         Vec3::new(pos.x as f32, 0., pos.y as f32)
     }
 
-    pub fn create_candidate_road(
-        start_real: &GridPos,
-        end_real: &GridPos,
-        filter_map: BuildabilityMap,
-    ) -> Option<Vec<GridPos>> {
-        let start = IVec2::new(start_real.x as i32, start_real.y as i32);
-        let end = IVec2::new(end_real.x as i32, end_real.y as i32);
+    pub fn create_candidate_road(&self, filter_map: &BuildabilityMap) -> Option<Vec<GridPos>> {
+        let points = self.get_as_list();
+        let mut shifted_points = points.clone();
+        shifted_points.remove(0);
+        let mut full_path = vec![];
+        let mut cum_filter_map = *filter_map;
 
-        if filter_map.get(end_real.x, end_real.y) {
-            return None;
+        for (first, second) in points.iter().zip(shifted_points) {
+            let path = a_star(first, &second, cum_filter_map)?;
+            for &pos in &path {
+                let _ = cum_filter_map.set_real(pos, true);
+            }
+            full_path.extend(path);
         }
 
-        let h = |x: IVec2| (end.x - x.x).abs() + (end.y - x.y).abs();
-        let mut next_to_search: Vec<IVec2> = vec![start];
-        let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
-
-        let mut came_from: HashMap<IVec2, IVec2> = HashMap::new();
-
-        let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
-        g_scores.insert(start, 0);
-
-        let mut current_depth = 0_u32;
-        while !next_to_search.is_empty() && current_depth < SEARCH_DEPTH {
-            current_depth += 1;
-
-            let current = next_to_search.remove(0);
-            if current == end {
-                let mut total_path = vec![GridPos::new(current.x as u32, current.y as u32)];
-                let mut backward = current;
-                while came_from.contains_key(&backward) {
-                    backward = came_from[&backward];
-                    let backward_gridpos = UVec2::new(backward.x as u32, backward.y as u32);
-                    total_path.push(backward_gridpos);
-                }
-                return Some(total_path);
-            }
-
-            let neighbours: Vec<IVec2> = [
-                current + IVec2::X,
-                current + IVec2::Y,
-                current - IVec2::X,
-                current - IVec2::Y,
-            ]
-            .iter()
-            .filter_map(|neighbour| {
-                if neighbour.x < 0
-                    || neighbour.y < 0
-                    || filter_map.get(neighbour.x as u32, neighbour.y as u32)
-                {
-                    None
-                } else {
-                    Some(*neighbour)
-                }
-            })
-            .collect();
-
-            for neighbour in neighbours {
-                let this_g_score = g_scores[&current] + 1;
-                let g_score = g_scores.get(&neighbour).unwrap_or(&i32::MAX);
-                let already_exists = g_scores.contains_key(&neighbour);
-
-                if this_g_score < *g_score {
-                    g_scores.insert(neighbour, this_g_score);
-                    came_from.insert(neighbour, current);
-                    f_scores.insert(neighbour, this_g_score + h(neighbour));
-                    if !already_exists {
-                        next_to_search.push(neighbour);
-                    }
-                }
-            }
-        }
-
-        None
+        Some(full_path)
     }
 
     pub fn spawn_road_segments(
@@ -139,7 +81,7 @@ impl Road {
         material: &Handle<StandardMaterial>,
         buildability_map: &mut BuildabilityMap,
     ) {
-        if let Some(path) = Road::create_candidate_road(&self.start, &self.end, *buildability_map) {
+        if let Some(path) = self.create_candidate_road(buildability_map) {
             for pos in path {
                 let real_pos = Road::real_pos(&pos);
 
@@ -156,6 +98,16 @@ impl Road {
                 ));
             }
         }
+    }
+
+    pub fn get_as_list(&self) -> Vec<UVec2> {
+        let mut res = vec![];
+        res.push(self.start);
+        for &point in &self.waypoints {
+            res.push(point);
+        }
+        res.push(self.end);
+        res
     }
 }
 
@@ -183,6 +135,10 @@ impl RoadConstructor {
             waypoints: vec![],
             end: None,
         }
+    }
+
+    pub fn add_waypoint(&mut self, point: GridPos) {
+        self.waypoints.push(point);
     }
 
     pub fn add_waypoints(&mut self, points: &mut dyn Iterator<Item = GridPos>) {
@@ -222,4 +178,79 @@ impl RoadConstructor {
 
         result
     }
+}
+
+fn a_star(
+    start_real: &GridPos,
+    end_real: &GridPos,
+    filter_map: BuildabilityMap,
+) -> Option<Vec<GridPos>> {
+    let start = IVec2::new(start_real.x as i32, start_real.y as i32);
+    let end = IVec2::new(end_real.x as i32, end_real.y as i32);
+
+    if filter_map.get(end_real.x, end_real.y) {
+        return None;
+    }
+
+    let h = |x: IVec2| (end.x - x.x).abs() + (end.y - x.y).abs();
+    let mut next_to_search: Vec<IVec2> = vec![start];
+    let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
+
+    let mut came_from: HashMap<IVec2, IVec2> = HashMap::new();
+
+    let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
+    g_scores.insert(start, 0);
+
+    let mut current_depth = 0_u32;
+    while !next_to_search.is_empty() && current_depth < SEARCH_DEPTH {
+        current_depth += 1;
+
+        let current = next_to_search.remove(0);
+        if current == end {
+            let mut total_path = vec![GridPos::new(current.x as u32, current.y as u32)];
+            let mut backward = current;
+            while came_from.contains_key(&backward) {
+                backward = came_from[&backward];
+                let backward_gridpos = UVec2::new(backward.x as u32, backward.y as u32);
+                total_path.push(backward_gridpos);
+            }
+            return Some(total_path);
+        }
+
+        let neighbours: Vec<IVec2> = [
+            current + IVec2::X,
+            current + IVec2::Y,
+            current - IVec2::X,
+            current - IVec2::Y,
+        ]
+        .iter()
+        .filter_map(|neighbour| {
+            if neighbour.x < 0
+                || neighbour.y < 0
+                || filter_map.get(neighbour.x as u32, neighbour.y as u32)
+            {
+                None
+            } else {
+                Some(*neighbour)
+            }
+        })
+        .collect();
+
+        for neighbour in neighbours {
+            let this_g_score = g_scores[&current] + 1;
+            let g_score = g_scores.get(&neighbour).unwrap_or(&i32::MAX);
+            let already_exists = g_scores.contains_key(&neighbour);
+
+            if this_g_score < *g_score {
+                g_scores.insert(neighbour, this_g_score);
+                came_from.insert(neighbour, current);
+                f_scores.insert(neighbour, this_g_score + h(neighbour));
+                if !already_exists {
+                    next_to_search.push(neighbour);
+                }
+            }
+        }
+    }
+
+    None
 }

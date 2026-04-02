@@ -1,8 +1,10 @@
-use crate::road::{
-    BuildRoadMessage, RoadConstructor,
-    types::{Road, RoadAssets},
+use crate::{
+    road::{
+        BuildRoadMessage, RoadConstructor,
+        types::{Road, RoadAssets},
+    },
+    tile::TileAttributes,
 };
-use crate::states::*;
 use bevy::prelude::*;
 use bevy_terrain::*;
 
@@ -44,8 +46,14 @@ pub fn build_road_event(
     mut ev: MessageReader<TileClickedMessage>,
     mut road_writer: MessageWriter<BuildRoadMessage>,
     mut road_constructor: ResMut<RoadConstructor>,
+    tile_attribs: Res<TileAttributes>,
 ) {
     for build_ev in ev.read() {
+        if tile_attribs.get(build_ev.pos).is_none() {
+            road_constructor.add_waypoint(*build_ev.get_pos());
+            continue;
+        }
+
         if road_constructor.get_start().is_some() {
             road_writer.write(BuildRoadMessage::End(*build_ev.get_pos()));
             road_constructor.set_end(*build_ev.get_pos());

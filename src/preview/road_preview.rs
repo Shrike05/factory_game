@@ -34,15 +34,24 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
         return;
     }
 
-    let path_vec = Road::create_candidate_road(
-        &params.road_constructor.get_start().unwrap(),
-        &params
+    let mut points = vec![params.road_constructor.get_start().unwrap()];
+    let _ = params
+        .road_constructor
+        .get_waypoints()
+        .iter()
+        .map(|&pt| points.push(pt))
+        .collect::<Vec<()>>();
+    points.push(
+        params
             .road_constructor
             .get_end()
             .unwrap_or(params.hovered_tile.pos),
-        *params.build_map,
-    )
-    .unwrap_or(vec![]);
+    );
+
+    let road = Road::new(points).expect("Couldn't build Road");
+
+    let path_vec = Road::create_candidate_road(&road, &params.build_map).unwrap_or(vec![]);
+
     let mut path = path_vec.iter();
 
     for (mut mesh, mut mat, mut tran, mut vis, _) in params.query {

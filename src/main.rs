@@ -9,6 +9,7 @@ mod factory;
 mod preview;
 mod road;
 mod states;
+mod tile;
 
 fn main() {
     #[cfg(feature = "dev_tools")]
@@ -18,6 +19,7 @@ fn main() {
 
     app.add_plugins((
         DefaultPlugins.build().disable::<LogPlugin>(),
+        tile::TilePlugin,
         factory::FactoryPlugin,
         camera::CameraPlugin,
         road::RoadPlugin,
