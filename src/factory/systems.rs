@@ -7,7 +7,6 @@ use crate::tile::TileAttributes;
 use bevy::prelude::*;
 use bevy_defs_loader::LoadedDefs;
 use bevy_terrain::*;
-use log::info;
 use std::collections::HashSet;
 
 pub fn create_factory_assets(
@@ -71,7 +70,6 @@ pub fn spawn_factories(
                 .collect::<Vec<IVec2>>()
                 .as_slice(),
         );
-        info!("{:?}", outline);
 
         for position in absolute_shape {
             build_map
@@ -86,7 +84,6 @@ pub fn spawn_factories(
             let pos: UVec2 = position.as_uvec2();
             tile_attrib.set(pos, true);
         }
-        info!("{:?}", tile_attrib);
     }
 }
 

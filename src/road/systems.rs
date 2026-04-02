@@ -1,4 +1,3 @@
-use crate::states::*;
 use crate::{
     road::{
         BuildRoadMessage, RoadConstructor,
@@ -51,6 +50,7 @@ pub fn build_road_event(
 ) {
     for build_ev in ev.read() {
         if tile_attribs.get(build_ev.pos).is_none() {
+            road_constructor.add_waypoint(*build_ev.get_pos());
             continue;
         }
 
