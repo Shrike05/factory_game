@@ -2,7 +2,7 @@ use crate::globals::*;
 use crate::preview::types::*;
 use crate::states::BuildSelection;
 use crate::{
-    factory::{FactoryAssets, FactoryMap},
+    factory::FactoryMap,
     terrain::{BuildabilityMap, HoveredTile},
 };
 use bevy::prelude::*;
@@ -21,7 +21,7 @@ pub fn init_factory_preview(
     });
 
     commands.spawn((
-        Mesh3d(meshes.add(Sphere::default())),
+        Mesh3d(meshes.add(Cuboid::default())),
         MeshMaterial3d(transp_mat),
         Transform::from_xyz(0., 0., 0.),
         Visibility::Hidden,
@@ -40,7 +40,6 @@ pub fn preview_factory(
         ),
         With<PreviewFactory>,
     >,
-    fac_assets: Res<FactoryAssets>,
     fac_map: Res<FactoryMap>,
     build_map: Res<BuildabilityMap>,
     prev_mat: Res<PreviewAssets>,
@@ -53,8 +52,6 @@ pub fn preview_factory(
         .expect("Preview not initialized");
 
     if let BuildSelection::Factory(fac_type) = **build_select {
-        mesh.0 = fac_assets.mesh.clone();
-
         let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
         if !build_map.overlaps(&tiles) {
             mat.0 = prev_mat.normal_mat.clone();

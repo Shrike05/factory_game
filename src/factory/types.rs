@@ -9,16 +9,10 @@ pub enum FactoryType {
     Empty,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug)]
+#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
 pub struct Factory {
     pub origin: GridPos,
     pub factory_type: FactoryType,
-}
-
-#[derive(Resource, Clone, Debug, PartialEq, Eq)]
-pub struct FactoryAssets {
-    pub mesh: Handle<Mesh>,
-    pub material: Handle<StandardMaterial>,
 }
 
 #[derive(Resource)]
