@@ -28,7 +28,6 @@ fn main() {
         terrain::TerrainPlugin,
         MeshPickingPlugin,
         preview::PreviewPlugin,
-        asset_loader::AssetLoaderPlugin,
     ))
     .init_state::<states::BuildSelection>();
 
