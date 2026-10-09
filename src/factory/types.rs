@@ -1,7 +1,18 @@
 use crate::globals::*;
 use bevy::prelude::*;
 use clap::ValueEnum;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+#[derive(Resource, Clone, Debug, Default)]
+pub struct FactoryDefs {
+    pub defs: Vec<FactoryDef>,
+}
+
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+pub struct FactoryDef {
+    name: String,
+}
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
 pub enum FactoryType {
