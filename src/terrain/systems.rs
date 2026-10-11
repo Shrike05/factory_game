@@ -18,38 +18,41 @@ pub fn spawn_terrain(
     for i in 0..(SIZE * SIZE) {
         let pos = grid_to_world(&index_to_grid(i as u32));
 
-        commands
-            .spawn((
-                Mesh3d(mesh.clone()),
-                MeshMaterial3d(material.clone()),
-                worldpos_to_transform(pos),
-            ))
-            .observe(update_tile::<Pointer<Over>>(hover_material.clone(), true))
-            .observe(update_tile::<Pointer<Out>>(material.clone(), false))
-            .observe(tile_clicked::<Pointer<Click>>());
+        commands.spawn_scene(create_tile(pos, material.clone(), hover_material.clone()));
     }
 }
 
-pub fn update_tile<E: EntityEvent>(
-    new_material: Handle<StandardMaterial>,
-    hovering: bool,
-) -> impl Fn(On<E>, Query<(&mut MeshMaterial3d<StandardMaterial>, &Transform)>, ResMut<HoveredTile>)
-{
-    move |event, mut query, mut hovered_tile| {
-        if let Ok((mut material, transform)) = query.get_mut(event.event_target()) {
-            material.0 = new_material.clone();
-            hovered_tile.pos = world_to_grid(&transform.translation);
-            hovered_tile.hovering = hovering;
-        }
-    }
-}
+pub fn create_tile(
+    pos: Vec3,
+    normal_material_handle: Handle<StandardMaterial>,
+    hover_material_handle: Handle<StandardMaterial>,
+) -> impl Scene {
+    bsn! {
+        Mesh3d(asset_value(Plane3d::new(Vec3::new(0., 1., 0.), Vec2::new(0.5, 0.5))))
+        MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(0.25, 0.25,0.25)))
+        Transform::from_xyz(pos.x, pos.y, pos.z)
 
-pub fn tile_clicked<E: EntityEvent>()
--> impl Fn(On<E>, Query<&Transform>, MessageWriter<BuildMessage>) {
-    move |event, mut query, mut msg| {
-        if let Ok(transform) = query.get_mut(event.event_target()) {
-            msg.write(BuildMessage::new(world_to_grid(&transform.translation)));
-        }
+        on(move |event: On<PointerOver>, mut query: Query<(&mut MeshMaterial3d<StandardMaterial>, &Transform)>, mut hovered_tile: ResMut<HoveredTile>| {
+            if let Ok((mut material, transform)) = query.get_mut(event.event_target()) {
+                material.0 = hover_material_handle.clone();
+                hovered_tile.pos = world_to_grid(&transform.translation);
+                hovered_tile.hovering = true;
+            }
+        })
+
+        on(move |event: On<PointerOut>, mut query: Query<(&mut MeshMaterial3d<StandardMaterial>, &Transform)>, mut hovered_tile: ResMut<HoveredTile>| {
+            if let Ok((mut material, transform)) = query.get_mut(event.event_target()) {
+                material.0 = normal_material_handle.clone();
+                hovered_tile.pos = world_to_grid(&transform.translation);
+                hovered_tile.hovering = false;
+            }
+        })
+
+        on(move |event: On<PointerClick>, query: Query<&Transform>, mut msg: MessageWriter<BuildMessage>| {
+            if let Ok(transform) = query.get(event.event_target()) {
+                msg.write(BuildMessage::new(world_to_grid(&transform.translation)));
+            }
+        })
     }
 }
 

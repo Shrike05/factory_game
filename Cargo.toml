@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = "0.19.1"
+bevy = { version= "0.20.0", features = ["bevy_picking"] }
 bitmaps = "3.2.1"
-bevy_devtools = { git = "https://github.com/Shrike05/bevy_devtools.git", optional = true, tag = "0.2.0" }
+bevy_devtools = { git = "https://github.com/Shrike05/bevy_devtools.git", optional = true, tag = "0.2.01" }
 regex = "1.12.3"
 clap = {version = "4.6.0", features = ["derive"]}
 serde = "1.0.228"
