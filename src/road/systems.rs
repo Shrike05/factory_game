@@ -3,6 +3,7 @@ use crate::{
         BuildRoadMessage, RoadConstructor,
         types::{Road, RoadAssets},
     },
+    states::BuildSelection,
     terrain::BuildabilityMap,
 };
 use bevy::prelude::*;
@@ -22,21 +23,32 @@ pub fn spawn_road(
     mut commands: Commands,
     road_assets: Res<RoadAssets>,
     mut build_road_message: MessageReader<BuildRoadMessage>,
+    mut next_buildselection: ResMut<NextState<BuildSelection>>,
     mut road_constructor: ResMut<RoadConstructor>,
     mut buildability_map: ResMut<BuildabilityMap>,
 ) {
-    for _ in build_road_message.read() {
-        if road_constructor.finished()
-            && let Ok(road) = Road::new(road_constructor.get_list())
-        {
-            road.spawn_road_segments(
-                &mut commands,
-                &road_assets.mesh,
-                &road_assets.material,
-                &mut buildability_map,
-            );
+    for build_road_message in build_road_message.read() {
+        match build_road_message {
+            BuildRoadMessage::Start(start) => {
+                road_constructor.set_start(*start);
+                next_buildselection.set(BuildSelection::Road);
+            }
+            BuildRoadMessage::End(end) => {
+                road_constructor.set_end(*end);
+                if let Ok(road) = Road::new(road_constructor.get_list()) {
+                    road.spawn_road_segments(
+                        &mut commands,
+                        &road_assets.mesh,
+                        &road_assets.material,
+                        &mut buildability_map,
+                    );
+                } else {
+                    println!("Couldn't spawn road");
+                }
 
-            *road_constructor = RoadConstructor::empty();
+                next_buildselection.set(BuildSelection::None);
+                *road_constructor = RoadConstructor::empty();
+            }
         }
     }
 }

@@ -6,6 +6,8 @@ use bevy::prelude::*;
 use crate::factory::types::{FactoryConnections, FactoryDef, FactoryDefs};
 use crate::factory::{types::Factory, *};
 use crate::globals::*;
+use crate::road::BuildRoadMessage;
+use crate::states::BuildSelection;
 use crate::terrain::BuildabilityMap;
 
 pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
@@ -27,23 +29,9 @@ pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
     factory_defs.defs = defs;
 }
 
-pub fn spawn_factories(
-    mut commands: Commands,
-    mut msg: MessageReader<NewFactoryEvent>,
-    mut build_map: ResMut<BuildabilityMap>,
-    fac_map: Res<FactoryMap>,
-) {
+pub fn spawn_factories(mut commands: Commands, mut msg: MessageReader<NewFactoryEvent>) {
     for message in msg.read() {
         commands.spawn_scene(create_factory(message.pos, message.factory_type));
-
-        let factory = Factory::new(message.pos, message.factory_type);
-
-        let shape: Box<[GridPos]> = fac_map.shapes[&factory.factory_type].clone();
-        for offset in shape {
-            build_map
-                .set_real(factory.origin + offset, true)
-                .expect("Couldn't set factory to the build_map");
-        }
     }
 }
 
@@ -51,9 +39,22 @@ pub fn create_factory(pos: GridPos, fac_type: FactoryType) -> impl Scene {
     let factory = Factory::new(pos, fac_type);
     bsn! {
         Factory::new(pos, fac_type)
-        Mesh3d(asset_value(Cuboid::new(1., 1., 1.)))
+        Mesh3d(asset_value(Cuboid::new(0.8, 1., 0.8)))
         MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 1., 1.)))
         Transform::from_xyz(factory.origin.x as f32, 0., factory.origin.y as f32)
         FactoryConnections::default()
+
+        on(move |event: On<PointerClick>, query: Query<&Transform>, mut msg: MessageWriter<BuildRoadMessage>, build_selection: Res<State<BuildSelection>>| {
+            if let Ok(transform) = query.get(event.event_target()){
+                match **build_selection{
+                    BuildSelection::Road => {
+                        msg.write(BuildRoadMessage::End(world_to_grid(&transform.translation)));
+                    }
+                    _ => {
+                        msg.write(BuildRoadMessage::Start(world_to_grid(&transform.translation)));
+                    }
+                }
+            }
+        })
     }
 }

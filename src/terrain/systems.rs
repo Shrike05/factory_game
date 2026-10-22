@@ -1,6 +1,5 @@
 use crate::factory::{FactoryMap, FactoryType, NewFactoryEvent};
 use crate::globals::*;
-use crate::road::*;
 use crate::states::BuildSelection;
 use crate::terrain::*;
 use bevy::prelude::*;

@@ -156,6 +156,8 @@ impl Road {
                     Transform::from_xyz(real_pos.x, real_pos.y, real_pos.z),
                 ));
             }
+        } else {
+            println!("Couldn't create_candidate_road");
         }
     }
 }
