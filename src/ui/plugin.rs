@@ -1,11 +1,15 @@
-use bevy::{picking::hover::Hovered, prelude::*, ui_widgets::Activate};
+use bevy::{
+    picking::hover::Hovered,
+    prelude::*,
+    ui_widgets::{Activate, Button},
+};
 
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, tool_bar.spawn());
-        app.add_systems(Update, update_button_hover_styles);
+        app.add_systems(Update, (update_button_hover_styles, update_button_flashes));
     }
 }
 
@@ -37,6 +41,7 @@ pub fn tool_bar() -> impl Scene {
 /// Reusable button scene definition with hover and click behaviors
 fn toolbar_button(label: &str) -> impl Scene {
     bsn! {
+        Button
         Node {
             width: px(110.),
             height: px(50.),
@@ -53,9 +58,14 @@ fn toolbar_button(label: &str) -> impl Scene {
         SmoothButtonAnimation::default()
 
         // Handle click event via bevy_ui_widgets::Button's Activate event
-        on(|_activate: On<Activate>, mut query: Query<&mut BackgroundColor>| {
-            if let Ok(mut bg) = query.get_mut(_activate.entity) {
+        on(|activate: On<Activate>, mut commands: Commands, mut query: Query<&mut BackgroundColor>| {
+            if let Ok(mut bg) = query.get_mut(activate.entity) {
                 *bg = BackgroundColor(Color::srgb(1.0, 0.6, 0.2)); // Flash color
+
+                // Insert a 150ms timer to revert the color automatically
+                commands.entity(activate.entity).insert(
+                    ButtonFlashTimer(Timer::from_seconds(0.15, TimerMode::Once))
+                );
             }
         })
 
@@ -112,5 +122,28 @@ fn update_button_hover_styles(
         // Apply to the UI transform
         ui_transform.scale = Vec2::splat(anim.current_scale);
         ui_transform.translation = Val2::px(0.0, anim.current_y);
+    }
+}
+
+/// Component added temporarily during a click flash
+#[derive(Component)]
+pub struct ButtonFlashTimer(pub Timer);
+
+/// System that reverts the button color back to normal when the flash timer expires
+fn update_button_flashes(
+    time: Res<Time>,
+    mut commands: Commands,
+    mut query: Query<(Entity, &mut BackgroundColor, &mut ButtonFlashTimer)>,
+) {
+    let dt = time.delta_secs();
+    for (entity, mut bg, mut flash_timer) in &mut query {
+        flash_timer.0.tick(std::time::Duration::from_secs_f32(dt));
+
+        if flash_timer.0.is_finished() {
+            // Revert back to the normal button color
+            *bg = BackgroundColor(Color::srgb(0.25, 0.25, 0.3));
+            // Remove the timer component so this system stops tracking it until the next click
+            commands.entity(entity).remove::<ButtonFlashTimer>();
+        }
     }
 }
