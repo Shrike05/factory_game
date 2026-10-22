@@ -28,7 +28,7 @@ pub struct RoadPreviewParams<'w, 's> {
 }
 
 pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
-    if params.road_constructor.get_start().is_none() {
+    if params.road_constructor.get_start().0.is_none() {
         for (_, _, _, mut vis, _) in params.query {
             *vis = Visibility::Hidden;
         }
@@ -36,10 +36,11 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
     }
 
     let path_vec = Road::create_candidate_road(
-        &params.road_constructor.get_start().unwrap(),
+        &params.road_constructor.get_start().0.unwrap(),
         &params
             .road_constructor
             .get_end()
+            .0
             .unwrap_or(params.hovered_tile.pos),
         *params.build_map,
     )
