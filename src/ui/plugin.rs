@@ -4,6 +4,8 @@ use bevy::{
     ui_widgets::{Activate, Button},
 };
 
+use crate::states::BuildSelection;
+
 pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
@@ -31,15 +33,15 @@ pub fn tool_bar() -> impl Scene {
         }
         BackgroundColor(Color::srgba(0.12, 0.12, 0.15, 0.85))
         Children [
-            @toolbar_button("Tool 1") --
-            @toolbar_button("Tool 2") --
-            @toolbar_button("Tool 3")
+            @toolbar_button("Road", BuildSelection::Road)
+            --
+            @toolbar_button("Factory", BuildSelection::Factory(crate::factory::FactoryType::Empty))
         ]
     }
 }
 
 /// Reusable button scene definition with hover and click behaviors
-fn toolbar_button(label: &str) -> impl Scene {
+fn toolbar_button(label: &str, new_state: BuildSelection) -> impl Scene {
     bsn! {
         Button
         Node {
@@ -58,7 +60,7 @@ fn toolbar_button(label: &str) -> impl Scene {
         SmoothButtonAnimation::default()
 
         // Handle click event via bevy_ui_widgets::Button's Activate event
-        on(|activate: On<Activate>, mut commands: Commands, mut query: Query<&mut BackgroundColor>| {
+        on(move |activate: On<Activate>, mut commands: Commands, mut query: Query<&mut BackgroundColor>, mut state: ResMut<NextState<BuildSelection>>| {
             if let Ok(mut bg) = query.get_mut(activate.entity) {
                 *bg = BackgroundColor(Color::srgb(1.0, 0.6, 0.2)); // Flash color
 
@@ -66,6 +68,8 @@ fn toolbar_button(label: &str) -> impl Scene {
                 commands.entity(activate.entity).insert(
                     ButtonFlashTimer(Timer::from_seconds(0.15, TimerMode::Once))
                 );
+
+                state.set(new_state);
             }
         })
 
