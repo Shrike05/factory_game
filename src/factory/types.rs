@@ -4,6 +4,13 @@ use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Default)]
+pub enum Item {
+    #[default]
+    Rock,
+    Iron,
+}
+
 #[derive(Resource, Clone, Debug, Default)]
 pub struct FactoryDefs {
     pub defs: Vec<FactoryDef>,
@@ -20,10 +27,12 @@ pub enum FactoryType {
     Empty,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+#[derive(Component, Clone, Copy, PartialEq, Debug, Default)]
 pub struct Factory {
     pub origin: GridPos,
     pub factory_type: FactoryType,
+    pub input: (Item, f32),
+    pub output: (Item, f32),
 }
 
 #[derive(Resource)]
@@ -71,6 +80,24 @@ impl Factory {
         Factory {
             origin,
             factory_type,
+            input: (Item::Rock, 2.),
+            output: (Item::Iron, 1.),
         }
     }
+}
+
+#[derive(Component, Default, Debug, Clone)]
+pub struct FactoryConnections {
+    pub inputs: Vec<Entity>,  // Upstream factories this depends on
+    pub outputs: Vec<Entity>, // Downstream factories depending on this
+}
+
+#[derive(Resource, Default, Debug)]
+pub struct GlobalStorage {
+    pub items: HashMap<Item, f32>, // e.g., "iron_ore" -> 150.0
+}
+
+#[derive(Clone, Default, Debug, Resource)]
+pub struct SelectedFactory {
+    factory: Option<Entity>,
 }

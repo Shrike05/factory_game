@@ -14,7 +14,5 @@ impl Plugin for TerrainPlugin {
             hovering: false,
         });
         app.add_systems(Startup, spawn_terrain);
-        app.add_message::<BuildMessage>();
-        app.add_systems(Update, build_event);
     }
 }

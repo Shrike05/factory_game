@@ -3,7 +3,7 @@ use std::path::Path;
 
 use bevy::prelude::*;
 
-use crate::factory::types::{FactoryDef, FactoryDefs};
+use crate::factory::types::{FactoryConnections, FactoryDef, FactoryDefs};
 use crate::factory::{types::Factory, *};
 use crate::globals::*;
 use crate::terrain::BuildabilityMap;
@@ -54,5 +54,6 @@ pub fn create_factory(pos: GridPos, fac_type: FactoryType) -> impl Scene {
         Mesh3d(asset_value(Cuboid::new(1., 1., 1.)))
         MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 1., 1.)))
         Transform::from_xyz(factory.origin.x as f32, 0., factory.origin.y as f32)
+        FactoryConnections::default()
     }
 }

@@ -2,7 +2,6 @@ use crate::factory::{FactoryMap, FactoryType, NewFactoryEvent};
 use crate::globals::*;
 use crate::road::*;
 use crate::states::BuildSelection;
-use crate::terrain::types::BuildMessage;
 use crate::terrain::*;
 use bevy::prelude::*;
 
@@ -48,45 +47,10 @@ pub fn create_tile(
             }
         })
 
-        on(move |event: On<PointerClick>, query: Query<&Transform>, mut msg: MessageWriter<BuildMessage>| {
-            if let Ok(transform) = query.get(event.event_target()) {
-                msg.write(BuildMessage::new(world_to_grid(&transform.translation)));
+        on(move |event: On<PointerClick>, query: Query<&Transform>, mut msg: MessageWriter<NewFactoryEvent>, build_selection: Res<State<BuildSelection>>| {
+            if let Ok(transform) = query.get(event.event_target()) &&  let BuildSelection::Factory(fac_type) = **build_selection{
+                msg.write(NewFactoryEvent { pos: world_to_grid(&transform.translation), factory_type: fac_type });
             }
         })
-    }
-}
-
-pub fn build_event(
-    mut ev: MessageReader<BuildMessage>,
-    mut fac_writer: MessageWriter<NewFactoryEvent>,
-    mut road_writer: MessageWriter<BuildRoadMessage>,
-    fac_map: Res<FactoryMap>,
-    build_map: Res<BuildabilityMap>,
-    mut road_constructor: ResMut<RoadConstructor>,
-    build_selection: Res<State<BuildSelection>>,
-) {
-    for build_ev in ev.read() {
-        let tiles: Vec<GridPos> = fac_map.shapes[&FactoryType::Empty]
-            .iter()
-            .map(|x| x + build_ev.get_pos())
-            .collect();
-
-        match **build_selection {
-            BuildSelection::Factory(fac_type) => {
-                if !build_map.overlaps(&tiles) {
-                    fac_writer.write(NewFactoryEvent::new(*build_ev.get_pos(), fac_type));
-                }
-            }
-            BuildSelection::Road => {
-                if road_constructor.get_start().is_some() {
-                    road_writer.write(BuildRoadMessage::End(*build_ev.get_pos()));
-                    road_constructor.set_end(*build_ev.get_pos());
-                } else {
-                    road_writer.write(BuildRoadMessage::Start(*build_ev.get_pos()));
-                    road_constructor.set_start(*build_ev.get_pos());
-                }
-            }
-            _ => (),
-        }
     }
 }

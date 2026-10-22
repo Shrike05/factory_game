@@ -8,24 +8,9 @@ pub struct HoveredTile {
     pub hovering: bool,
 }
 
-#[derive(Message, Clone, Copy, Debug, PartialEq, Eq)]
-pub struct BuildMessage {
-    pub pos: GridPos,
-}
-
 #[derive(Resource, Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub struct BuildabilityMap {
     pub map: Bitmap<SIZE_SQUARED>,
-}
-
-impl BuildMessage {
-    pub fn new(pos: GridPos) -> BuildMessage {
-        BuildMessage { pos }
-    }
-
-    pub fn get_pos(&self) -> &GridPos {
-        &self.pos
-    }
 }
 
 impl BuildabilityMap {

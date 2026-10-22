@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     factory::{
         systems::{load_factory_defs, spawn_factories},
-        types::FactoryDefs,
+        types::{FactoryDefs, GlobalStorage, SelectedFactory},
         *,
     },
     states,
@@ -15,6 +15,8 @@ impl Plugin for FactoryPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(FactoryMap::init_factory_map());
         app.insert_resource(FactoryDefs::default());
+        app.insert_resource(GlobalStorage::default());
+        app.insert_resource(SelectedFactory::default());
         app.add_systems(Startup, load_factory_defs);
         app.add_systems(
             Update,
