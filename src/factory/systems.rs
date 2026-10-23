@@ -10,7 +10,7 @@ use crate::factory::{types::Factory, *};
 use crate::globals::*;
 use crate::road::BuildRoadMessage;
 use crate::states::BuildSelection;
-use crate::terrain::BuildabilityMap;
+use crate::terrain::{BuildabilityMap, HoveredTile};
 
 pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
     let folder_path = Path::new("./assets/defs/");
@@ -102,5 +102,12 @@ pub fn create_factory(pos: GridPos, fac_type: FactoryType) -> impl Scene {
         Mesh3d(asset_value(Cuboid::new(0.8, 1., 0.8)))
         MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 1., 1.)))
         Transform::from_xyz(pos.x as f32, 0., pos.y as f32)
+
+        on(move |event: On<PointerOver>, mut query: Query<&Transform>, mut hovered_tile: ResMut<HoveredTile>| {
+            if let Ok(transform) = query.get_mut(event.event_target()) {
+                hovered_tile.pos = world_to_grid(&transform.translation);
+                hovered_tile.hovering = true;
+            }
+        })
     }
 }

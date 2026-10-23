@@ -95,7 +95,10 @@ impl Road {
                     let backward_gridpos = UVec2::new(backward.x as u32, backward.y as u32);
                     total_path.push(backward_gridpos);
                 }
-                return Some(total_path);
+                if total_path.len() <= 1 {
+                    return Some(total_path);
+                }
+                return Some(total_path[1..total_path.len() - 1].to_vec());
             }
 
             let neighbours: Vec<IVec2> = [
