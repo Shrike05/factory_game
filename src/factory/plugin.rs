@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 
 use crate::{
     factory::{
@@ -22,7 +24,10 @@ impl Plugin for FactoryPlugin {
             Update,
             spawn_factories.run_if(in_state(states::InFactoryMode::True)),
         );
-        app.add_systems(Update, production_cycle);
+        app.add_systems(
+            Update,
+            production_cycle.run_if(on_timer(Duration::from_secs(1))),
+        );
         app.add_message::<NewFactoryEvent>();
     }
 }

@@ -34,9 +34,6 @@ pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
 pub fn production_cycle(mut production: ResMut<Production>) {
     production.set_inventory_item(Item::Rock, 10.);
     production.production_cycle();
-    if production.get_inventory_amount(&Item::Iron) != 0. {
-        println!("{}", production.get_inventory_amount(&Item::Iron));
-    }
 }
 
 pub fn spawn_factories(

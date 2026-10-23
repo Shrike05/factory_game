@@ -142,7 +142,7 @@ impl Road {
         mesh: &Handle<Mesh>,
         material: &Handle<StandardMaterial>,
         buildability_map: &mut BuildabilityMap,
-    ) {
+    ) -> Option<()> {
         if let Some(path) = Road::create_candidate_road(&self.start, &self.end, *buildability_map) {
             for pos in path {
                 let real_pos = Road::real_pos(&pos);
@@ -159,8 +159,10 @@ impl Road {
                     Transform::from_xyz(real_pos.x, real_pos.y, real_pos.z),
                 ));
             }
+
+            Some(())
         } else {
-            println!("Couldn't create_candidate_road");
+            None
         }
     }
 }

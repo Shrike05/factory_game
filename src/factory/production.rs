@@ -98,14 +98,6 @@ impl Production {
 
     pub fn add_connection(&mut self, from: Entity, to: Entity) {
         self.factory_connections.entry(from).or_default().push(to);
-        println!(
-            "factories {:?}, connections {:?}",
-            self.factories
-                .iter()
-                .map(|x| (x.1.factory_type, x.0))
-                .collect::<Vec<(FactoryType, &Entity)>>(),
-            self.factory_connections
-        );
     }
 
     /// Executes one production cycle using topological sorting and Entity keys.

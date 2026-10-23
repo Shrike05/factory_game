@@ -41,12 +41,16 @@ pub fn spawn_road(
             BuildRoadMessage::End(end, factory) => {
                 road_constructor.set_end(*end, *factory);
                 if let Ok(road) = Road::new(road_constructor.get_list()) {
-                    road.spawn_road_segments(
+                    let result = road.spawn_road_segments(
                         &mut commands,
                         &road_assets.mesh,
                         &road_assets.material,
                         &mut buildability_map,
                     );
+
+                    if result.is_none() {
+                        return;
+                    }
 
                     let start_entity = commands
                         .get_entity(road_constructor.get_start().1.unwrap())
