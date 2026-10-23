@@ -1,7 +1,7 @@
 use crate::globals::*;
 use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const SEARCH_DEPTH: u32 = 100;
 
@@ -61,24 +61,16 @@ impl Road {
         Vec3::new(pos.x as f32, 0., pos.y as f32)
     }
 
-    pub fn create_candidate_road(
-        start_real: &GridPos,
-        end_real: &GridPos,
-        filter_map: BuildabilityMap,
+    fn find_path_segment(
+        start: IVec2,
+        end: IVec2,
+        filter_map: &BuildabilityMap,
+        global_visited: &HashSet<GridPos>,
     ) -> Option<Vec<GridPos>> {
-        let start = IVec2::new(start_real.x as i32, start_real.y as i32);
-        let end = IVec2::new(end_real.x as i32, end_real.y as i32);
-
-        if filter_map.get(end_real.x, end_real.y) {
-            return None;
-        }
-
         let h = |x: IVec2| (end.x - x.x).abs() + (end.y - x.y).abs();
         let mut next_to_search: Vec<IVec2> = vec![start];
         let mut f_scores: HashMap<IVec2, i32> = HashMap::new();
-
         let mut came_from: HashMap<IVec2, IVec2> = HashMap::new();
-
         let mut g_scores: HashMap<IVec2, i32> = HashMap::new();
         g_scores.insert(start, 0);
 
@@ -88,17 +80,14 @@ impl Road {
 
             let current = next_to_search.remove(0);
             if current == end {
-                let mut total_path = vec![GridPos::new(current.x as u32, current.y as u32)];
+                let mut segment = vec![GridPos::new(current.x as u32, current.y as u32)];
                 let mut backward = current;
                 while came_from.contains_key(&backward) {
                     backward = came_from[&backward];
-                    let backward_gridpos = UVec2::new(backward.x as u32, backward.y as u32);
-                    total_path.push(backward_gridpos);
+                    segment.push(GridPos::new(backward.x as u32, backward.y as u32));
                 }
-                if total_path.len() <= 1 {
-                    return Some(total_path);
-                }
-                return Some(total_path[1..total_path.len() - 1].to_vec());
+                segment.reverse();
+                return Some(segment);
             }
 
             let neighbours: Vec<IVec2> = [
@@ -109,9 +98,11 @@ impl Road {
             ]
             .iter()
             .filter_map(|neighbour| {
+                let grid_pos = GridPos::new(neighbour.x as u32, neighbour.y as u32);
                 if neighbour.x < 0
                     || neighbour.y < 0
                     || filter_map.get(neighbour.x as u32, neighbour.y as u32)
+                    || global_visited.contains(&grid_pos)
                 {
                     None
                 } else {
@@ -139,6 +130,44 @@ impl Road {
         None
     }
 
+    /// Creates a candidate road by routing through start, all waypoints, and end in order,
+    /// ensuring no self-intersections occur across segments.
+    pub fn create_candidate_road(&self, filter_map: BuildabilityMap) -> Option<Vec<GridPos>> {
+        let mut points = Vec::with_capacity(2 + self.waypoints.len());
+        points.push(self.start);
+        points.extend(self.waypoints.iter().cloned());
+        points.push(self.end);
+
+        let mut full_path: Vec<GridPos> = Vec::new();
+        let mut global_visited: HashSet<GridPos> = HashSet::new();
+
+        // Chain A* pathfinding between each consecutive pair of points
+        for window in points.windows(2) {
+            let p_start = IVec2::new(window[0].x as i32, window[0].y as i32);
+            let p_end = IVec2::new(window[1].x as i32, window[1].y as i32);
+
+            let segment = Self::find_path_segment(p_start, p_end, &filter_map, &global_visited)?;
+
+            if full_path.is_empty() {
+                global_visited.extend(segment.iter().cloned());
+                full_path.extend(segment);
+            } else {
+                // Skip the first element to avoid duplicating the joint node,
+                // but mark the rest as visited and add them to the path
+                let slice = &segment[1..];
+                global_visited.extend(slice.iter().cloned());
+                full_path.extend(slice.iter().cloned());
+            }
+        }
+
+        // Strip the absolute start and end to return only the inner waypoints
+        if full_path.len() <= 2 {
+            Some(vec![])
+        } else {
+            Some(full_path[1..full_path.len() - 1].to_vec())
+        }
+    }
+
     pub fn spawn_road_segments(
         &self,
         commands: &mut Commands,
@@ -146,7 +175,7 @@ impl Road {
         material: &Handle<StandardMaterial>,
         buildability_map: &mut BuildabilityMap,
     ) -> Option<()> {
-        if let Some(path) = Road::create_candidate_road(&self.start, &self.end, *buildability_map) {
+        if let Some(path) = self.create_candidate_road(*buildability_map) {
             for pos in path {
                 let real_pos = Road::real_pos(&pos);
 
@@ -222,6 +251,10 @@ impl RoadConstructor {
     pub fn set_end(&mut self, end: GridPos, entity: Entity) {
         self.end = Some(end);
         self.end_entity = Some(entity)
+    }
+
+    pub fn set_end_coordinate(&mut self, end: GridPos) {
+        self.end = Some(end);
     }
 
     pub fn finished(&self) -> bool {

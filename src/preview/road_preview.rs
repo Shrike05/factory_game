@@ -35,16 +35,12 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
         return;
     }
 
-    let path_vec = Road::create_candidate_road(
-        &params.road_constructor.get_start().0.unwrap(),
-        &params
-            .road_constructor
-            .get_end()
-            .0
-            .unwrap_or(params.hovered_tile.pos),
-        *params.build_map,
-    )
-    .unwrap_or(vec![]);
+    let mut rc = params.road_constructor.clone();
+    rc.set_end_coordinate(params.hovered_tile.pos);
+    let path_vec = Road::new(rc.get_list())
+        .unwrap()
+        .create_candidate_road(*params.build_map)
+        .unwrap_or(vec![]);
     let mut path = path_vec.iter();
 
     for (mut mesh, mut mat, mut tran, mut vis, _) in params.query {

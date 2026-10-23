@@ -1,5 +1,6 @@
 use crate::factory::{FactoryMap, FactoryType, NewFactoryEvent};
 use crate::globals::*;
+use crate::road::BuildRoadMessage;
 use crate::states::BuildSelection;
 use crate::terrain::*;
 use bevy::prelude::*;
@@ -46,9 +47,17 @@ pub fn create_tile(
             }
         })
 
-        on(move |event: On<PointerClick>, query: Query<&Transform>, mut msg: MessageWriter<NewFactoryEvent>, build_selection: Res<State<BuildSelection>>| {
-            if let Ok(transform) = query.get(event.event_target()) &&  let BuildSelection::Factory(fac_type) = **build_selection{
-                msg.write(NewFactoryEvent { pos: world_to_grid(&transform.translation), factory_type: fac_type });
+        on(move |event: On<PointerClick>, query: Query<&Transform>, mut factory_event_writer: MessageWriter<NewFactoryEvent>, mut road_writer: MessageWriter<BuildRoadMessage>,  build_selection: Res<State<BuildSelection>>| {
+            if let Ok(transform) = query.get(event.event_target()){
+                match **build_selection{
+                    BuildSelection::Factory(fac_type) => {
+                        factory_event_writer.write(NewFactoryEvent { pos: world_to_grid(&transform.translation), factory_type: fac_type });
+                    }
+                    BuildSelection::Road => {
+                        road_writer.write(BuildRoadMessage::WayPoint(world_to_grid(&transform.translation)));
+                    }
+                    _ => ()
+                }
             }
         })
     }
