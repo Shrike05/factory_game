@@ -1,3 +1,4 @@
+use crate::factory::FactoryType;
 use bevy::{
     picking::hover::Hovered,
     prelude::*,
@@ -33,9 +34,11 @@ pub fn tool_bar() -> impl Scene {
         }
         BackgroundColor(Color::srgba(0.12, 0.12, 0.15, 0.85))
         Children [
-            @toolbar_button("Road", BuildSelection::Road)
+            @toolbar_button("Sink", BuildSelection::Factory(FactoryType::Sink))
             --
-            @toolbar_button("Factory", BuildSelection::Factory(crate::factory::FactoryType::Empty))
+            @toolbar_button("Source", BuildSelection::Factory(FactoryType::Source))
+            --
+            @toolbar_button("Factory", BuildSelection::Factory(FactoryType::Empty))
         ]
     }
 }

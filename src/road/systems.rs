@@ -1,5 +1,5 @@
 use crate::{
-    factory::FactoryConnections,
+    factory::Production,
     road::{
         BuildRoadMessage, RoadConstructor,
         types::{Road, RoadAssets},
@@ -22,7 +22,7 @@ pub fn create_road_assets(
 
 pub fn spawn_road(
     mut commands: Commands,
-    mut connections_query: Query<&mut FactoryConnections>,
+    mut prod: ResMut<Production>,
     road_assets: Res<RoadAssets>,
     mut build_road_message: MessageReader<BuildRoadMessage>,
     mut next_buildselection: ResMut<NextState<BuildSelection>>,
@@ -53,17 +53,11 @@ pub fn spawn_road(
                         .unwrap()
                         .id();
                     let end_entity = commands
-                        .get_entity(road_constructor.get_start().1.unwrap())
+                        .get_entity(road_constructor.get_end().1.unwrap())
                         .unwrap()
                         .id();
 
-                    if let Ok(mut connection) = connections_query.get_mut(start_entity) {
-                        connection.outputs.push(end_entity);
-                    }
-
-                    if let Ok(mut connection) = connections_query.get_mut(end_entity) {
-                        connection.inputs.push(start_entity);
-                    }
+                    prod.add_connection(start_entity, end_entity);
                 } else {
                     println!("Couldn't spawn road");
                 }

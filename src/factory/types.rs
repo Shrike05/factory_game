@@ -25,15 +25,23 @@ pub struct FactoryDef {
 pub enum FactoryType {
     #[default]
     Empty,
+    Sink,
+    Source,
 }
 
-#[derive(Component, Clone, Copy, PartialEq, Debug, Default)]
+#[derive(Component, Clone, PartialEq, Debug, Default)]
 pub struct Factory {
     pub origin: GridPos,
     pub factory_type: FactoryType,
-    pub input: (Item, f32),
-    pub output: (Item, f32),
+    pub input: Vec<(Item, f32)>,
+    pub output: Vec<(Item, f32)>,
 }
+
+#[derive(Component, Clone, Copy, PartialEq, Debug, Default)]
+pub struct Sink;
+
+#[derive(Component, Clone, Copy, PartialEq, Debug, Default)]
+pub struct Source;
 
 #[derive(Resource)]
 pub struct FactoryMap {
@@ -60,6 +68,16 @@ impl FactoryMap {
             vec![GridPos::new(0, 0)].into_boxed_slice(),
         );
 
+        factory_map.insert(
+            FactoryType::Sink,
+            vec![GridPos::new(0, 0)].into_boxed_slice(),
+        );
+
+        factory_map.insert(
+            FactoryType::Source,
+            vec![GridPos::new(0, 0)].into_boxed_slice(),
+        );
+
         FactoryMap {
             shapes: factory_map,
         }
@@ -77,27 +95,17 @@ impl FactoryMap {
 
 impl Factory {
     pub fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
+        let (input, output) = match factory_type {
+            FactoryType::Empty => (vec![(Item::Rock, 2.)], vec![(Item::Iron, 1.)]),
+            FactoryType::Source => (vec![], vec![(Item::Rock, 1.)]),
+            FactoryType::Sink => (vec![(Item::Iron, 1.)], vec![]),
+        };
+
         Factory {
             origin,
             factory_type,
-            input: (Item::Rock, 2.),
-            output: (Item::Iron, 1.),
+            input,
+            output,
         }
     }
-}
-
-#[derive(Component, Default, Debug, Clone)]
-pub struct FactoryConnections {
-    pub inputs: Vec<Entity>,  // Upstream factories this depends on
-    pub outputs: Vec<Entity>, // Downstream factories depending on this
-}
-
-#[derive(Resource, Default, Debug)]
-pub struct GlobalStorage {
-    pub items: HashMap<Item, f32>, // e.g., "iron_ore" -> 150.0
-}
-
-#[derive(Clone, Default, Debug, Resource)]
-pub struct SelectedFactory {
-    factory: Option<Entity>,
 }
