@@ -1,6 +1,6 @@
 use crate::globals::world_to_grid;
 use crate::preview::types::*;
-use crate::road::{Road, RoadAssets, RoadConstructor};
+use crate::road::{Road, RoadConstructor};
 use crate::states::BuildSelection;
 use crate::terrain::{BuildabilityMap, HoveredTile};
 use bevy::ecs::system::SystemParam;
@@ -8,19 +8,8 @@ use bevy::prelude::*;
 
 #[derive(SystemParam)]
 pub struct RoadPreviewParams<'w, 's> {
-    pub query: Query<
-        'w,
-        's,
-        (
-            &'static mut Mesh3d,
-            &'static mut MeshMaterial3d<StandardMaterial>,
-            &'static mut Transform,
-            &'static mut Visibility,
-            &'static PreviewRoad,
-        ),
-    >,
+    pub query: Query<'w, 's, (Entity, &'static mut Transform, &'static PreviewRoad)>,
     pub build_map: Res<'w, BuildabilityMap>,
-    pub road_assets: Res<'w, RoadAssets>,
     pub prev_mat: Res<'w, PreviewAssets>,
     pub build_select: Res<'w, State<BuildSelection>>,
     pub road_constructor: Res<'w, RoadConstructor>,
@@ -28,68 +17,33 @@ pub struct RoadPreviewParams<'w, 's> {
 }
 
 pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
-    if params.road_constructor.get_start().0.is_none() {
-        for (_, _, _, mut vis, _) in params.query {
-            *vis = Visibility::Hidden;
-        }
-        return;
+    for (entity, _, _) in params.query {
+        commands.entity(entity).despawn();
     }
 
     let mut rc = params.road_constructor.clone();
     rc.set_end_coordinate(params.hovered_tile.pos);
-    let path_vec = Road::new(rc.get_list())
-        .unwrap()
-        .create_candidate_road(*params.build_map)
-        .unwrap_or(vec![]);
-    let mut path = path_vec.iter();
+    let road = Road::new(rc.get_list()).unwrap();
+    let path_vec = road.build_road_scenes(&params.build_map).unwrap_or(vec![]);
+    let mut path = path_vec.into_iter();
 
-    for (mut mesh, mut mat, mut tran, mut vis, _) in params.query {
-        if !params.build_select.eq(&BuildSelection::Road) {
-            continue;
-        }
-
-        mesh.0 = params.road_assets.mesh.clone();
-        mat.0 = params.prev_mat.normal_mat.clone();
-
-        match path.next() {
-            Some(pos) => {
-                tran.translation.x = pos.x as f32;
-                tran.translation.z = pos.y as f32;
-                if !params
-                    .build_map
-                    .overlaps(&[world_to_grid(&tran.translation)])
-                {
-                    mat.0 = params.prev_mat.normal_mat.clone();
-                } else {
-                    mat.0 = params.prev_mat.warning_mat.clone();
-                }
-
-                *vis = Visibility::Visible;
-            }
-            None => {
-                *vis = Visibility::Hidden;
-            }
-        }
-    }
-
-    for pos in path {
-        commands.spawn((
-            Mesh3d(params.road_assets.mesh.clone()),
-            MeshMaterial3d(params.prev_mat.normal_mat.clone()),
-            Transform::from_xyz(pos.x as f32, 0., pos.y as f32),
-            Visibility::Visible,
-            Pickable::IGNORE,
-            PreviewRoad,
-        ));
+    for (pos, scene) in path {
+        commands.spawn_scene(bsn! {
+            Transform::from_xyz(pos.x as f32, 0., pos.y as f32)
+            Pickable::IGNORE
+            PreviewRoad
+            @scene
+        });
     }
 }
 
 pub fn stop_build_road(
     mut road_constructor: ResMut<RoadConstructor>,
-    mut pre_query: Query<&mut Visibility, With<PreviewRoad>>,
+    pre_query: Query<Entity, With<PreviewRoad>>,
+    mut commands: Commands,
 ) {
-    for mut vis in pre_query.iter_mut() {
-        *vis = Visibility::Hidden;
+    for entity in pre_query.iter() {
+        commands.entity(entity).despawn();
     }
 
     *road_constructor = RoadConstructor::empty();

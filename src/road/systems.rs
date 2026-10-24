@@ -1,26 +1,14 @@
 use crate::{
     factory::Production,
-    road::{BuildRoadMessage, Road, RoadConstructor, types::RoadAssets},
+    road::{BuildRoadMessage, Road, RoadConstructor},
     states::BuildSelection,
     terrain::BuildabilityMap,
 };
 use bevy::prelude::*;
 
-pub fn create_road_assets(
-    mut commands: Commands,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    commands.insert_resource(RoadAssets {
-        mesh: meshes.add(Cuboid::new(0.9, 0.3, 0.9)),
-        material: materials.add(Color::srgb(0.51, 0.19, 0.)),
-    });
-}
-
 pub fn spawn_road(
     mut commands: Commands,
     mut prod: ResMut<Production>,
-    road_assets: Res<RoadAssets>,
     mut build_road_message: MessageReader<BuildRoadMessage>,
     mut next_buildselection: ResMut<NextState<BuildSelection>>,
     mut road_constructor: ResMut<RoadConstructor>,
@@ -38,16 +26,7 @@ pub fn spawn_road(
             BuildRoadMessage::End(end, factory) => {
                 road_constructor.set_end(*end, *factory);
                 if let Ok(road) = Road::new(road_constructor.get_list()) {
-                    let result = road.spawn_road_segments(
-                        &mut commands,
-                        &road_assets.mesh,
-                        &road_assets.material,
-                        &mut buildability_map,
-                    );
-
-                    if result.is_none() {
-                        return;
-                    }
+                    let result = road.spawn_roads(&mut commands, &mut buildability_map);
 
                     let start_entity = commands
                         .get_entity(road_constructor.get_start().1.unwrap())

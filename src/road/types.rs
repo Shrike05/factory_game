@@ -19,12 +19,6 @@ pub enum BuildRoadMessage {
     End(GridPos, Entity),
 }
 
-#[derive(Resource, Clone, Debug, PartialEq, Eq)]
-pub struct RoadAssets {
-    pub mesh: Handle<Mesh>,
-    pub material: Handle<StandardMaterial>,
-}
-
 #[allow(unused)]
 impl RoadConstructor {
     pub fn new(start: GridPos, waypoints: Vec<GridPos>, end: GridPos) -> Self {

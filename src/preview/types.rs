@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component, Clone, Copy, Hash, Debug, PartialEq, Eq)]
 pub struct PreviewFactory;
 
-#[derive(Component, Clone, Copy, Hash, Debug, PartialEq, Eq)]
+#[derive(Component, Clone, Copy, Hash, Debug, PartialEq, Eq, Default)]
 pub struct PreviewRoad;
 
 #[derive(Resource, Debug, PartialEq, Eq, Clone)]

@@ -138,82 +138,77 @@ impl Road {
             }
         }
 
-        // Strip the absolute start and end to return only the inner waypoints
-        if full_path.len() <= 2 {
-            Some(vec![])
-        } else {
-            Some(full_path[1..full_path.len() - 1].to_vec())
-        }
+        Some(full_path)
     }
 
-    pub fn spawn_road_segments(
+    pub fn spawn_roads(&self, commands: &mut Commands, buildability_map: &mut BuildabilityMap) {
+        let res = self.build_road_scenes(buildability_map).unwrap();
+
+        res.into_iter().for_each(|(pos, scene)| {
+            commands.spawn_scene(scene);
+            buildability_map.set_real(pos, true);
+        });
+    }
+
+    pub fn build_road_scenes(
         &self,
-        commands: &mut Commands,
-        mesh: &Handle<Mesh>,
-        material: &Handle<StandardMaterial>,
-        buildability_map: &mut BuildabilityMap,
-    ) -> Option<()> {
-        if let Some(path) = self.create_candidate_road(*buildability_map) {
-            for (pos, path_type) in analyze_path(&path) {
-                let world_pos = Road::real_pos(&pos);
+        buildability_map: &BuildabilityMap,
+    ) -> Option<Vec<(UVec2, Box<dyn Scene>)>> {
+        let path = self.create_candidate_road(*buildability_map)?;
+        let mut scenes = Vec::new();
 
-                let res = buildability_map.set_real(pos, true);
-
-                if res.is_err() {
-                    println!("Couldn't set build map");
-                }
-
-                match path_type {
-                    PathSegmentType::Start { outgoing } => {
-                        // Spawn start cap mesh, rotate based on `outgoing` vector
-                        let rotation = direction_to_rotation(outgoing);
-                        commands.spawn_scene(bsn! {
-                            Transform::from_translation(world_pos).with_rotation(rotation)
-                            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
-                            @straight_path_mesh()
-                        });
-                    }
-                    PathSegmentType::Straight { direction } => {
-                        let rotation = direction_to_rotation(direction);
-                        commands.spawn_scene(bsn! {
-                            Transform::from_translation(world_pos).with_rotation(rotation)
-                            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
-                            @straight_path_mesh()
-                        });
-                    }
-                    PathSegmentType::Corner { incoming, outgoing } => {
-                        // Corners depend on the exact turn combination (e.g., North-to-East vs South-to-East)
-                        let rotation = corner_to_rotation(incoming, outgoing);
-                        commands.spawn_scene(bsn! {
-                            Transform::from_translation(world_pos).with_rotation(rotation)
-                            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
-                            @corner_mesh()
-                        });
-                    }
-                    PathSegmentType::End { incoming } => {
-                        let rotation = direction_to_rotation(incoming);
-                        commands.spawn_scene(bsn! {
-                            Transform::from_translation(world_pos).with_rotation(rotation)
-                            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
-                            @straight_path_mesh()
-                        });
-                    }
-                    PathSegmentType::SingleNode => {
-                        // Handle fallback for a path of length 1
-                    }
-                }
-            }
-
-            Some(())
-        } else {
-            None
+        let analysis = analyze_path(&path);
+        if analysis.len() < 2 {
+            return None;
         }
+        for (pos, path_type) in analysis[1..analysis.len() - 1].to_vec().into_iter() {
+            let world_pos = Road::real_pos(&pos);
+
+            let segment_scene: Box<dyn Scene> = match path_type {
+                PathSegmentType::Start { outgoing } => {
+                    let rotation = direction_to_rotation(outgoing);
+                    Box::new(bsn! {
+                        Transform::from_translation(world_pos).with_rotation(rotation)
+                        @straight_path_mesh()
+                    })
+                }
+                PathSegmentType::Straight { direction } => {
+                    let rotation = direction_to_rotation(direction);
+                    Box::new(bsn! {
+                        Transform::from_translation(world_pos).with_rotation(rotation)
+                        @straight_path_mesh()
+                    })
+                }
+                PathSegmentType::Corner { incoming, outgoing } => {
+                    let rotation = corner_to_rotation(incoming, outgoing);
+                    Box::new(bsn! {
+                        Transform::from_translation(world_pos).with_rotation(rotation)
+                        @corner_mesh()
+                    })
+                }
+                PathSegmentType::End { incoming } => {
+                    let rotation = direction_to_rotation(incoming);
+                    Box::new(bsn! {
+                        Transform::from_translation(world_pos).with_rotation(rotation)
+                        @straight_path_mesh()
+                    })
+                }
+                PathSegmentType::SingleNode => continue,
+            };
+
+            scenes.push((pos, segment_scene));
+        }
+
+        Some(scenes)
     }
 }
 
 pub fn straight_path_mesh() -> impl Scene {
     bsn! {
-        Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 1.)))
+        Children[
+            Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 1.)))
+            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
+        ]
     }
 }
 
@@ -233,7 +228,7 @@ pub fn corner_mesh() -> impl Scene {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum PathSegmentType {
     Start { outgoing: IVec2 },
     End { incoming: IVec2 },
