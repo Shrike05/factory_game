@@ -142,8 +142,7 @@ impl Road {
     }
 
     pub fn spawn_roads(&self, commands: &mut Commands, buildability_map: &mut BuildabilityMap) {
-        let res = self.build_road_scenes(buildability_map).unwrap();
-
+        let res = self.build_road_scenes(buildability_map, None).unwrap();
         res.into_iter().for_each(|(pos, scene)| {
             commands.spawn_scene(scene);
             buildability_map.set_real(pos, true);
@@ -153,7 +152,9 @@ impl Road {
     pub fn build_road_scenes(
         &self,
         buildability_map: &BuildabilityMap,
+        road_color: Option<Color>,
     ) -> Option<Vec<(UVec2, Box<dyn Scene>)>> {
+        let color = road_color.unwrap_or(Color::srgb(0.54, 0.17, 0.14));
         let path = self.create_candidate_road(*buildability_map)?;
         let mut scenes = Vec::new();
 
@@ -169,28 +170,28 @@ impl Road {
                     let rotation = direction_to_rotation(outgoing);
                     Box::new(bsn! {
                         Transform::from_translation(world_pos).with_rotation(rotation)
-                        @straight_path_mesh()
+                        @straight_path_mesh(color)
                     })
                 }
                 PathSegmentType::Straight { direction } => {
                     let rotation = direction_to_rotation(direction);
                     Box::new(bsn! {
                         Transform::from_translation(world_pos).with_rotation(rotation)
-                        @straight_path_mesh()
+                        @straight_path_mesh(color)
                     })
                 }
                 PathSegmentType::Corner { incoming, outgoing } => {
                     let rotation = corner_to_rotation(incoming, outgoing);
                     Box::new(bsn! {
                         Transform::from_translation(world_pos).with_rotation(rotation)
-                        @corner_mesh()
+                        @corner_mesh(color)
                     })
                 }
                 PathSegmentType::End { incoming } => {
                     let rotation = direction_to_rotation(incoming);
                     Box::new(bsn! {
                         Transform::from_translation(world_pos).with_rotation(rotation)
-                        @straight_path_mesh()
+                        @straight_path_mesh(color)
                     })
                 }
                 PathSegmentType::SingleNode => continue,
@@ -203,27 +204,27 @@ impl Road {
     }
 }
 
-pub fn straight_path_mesh() -> impl Scene {
+pub fn straight_path_mesh(color: Color) -> impl Scene {
     bsn! {
         Children[
             Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 1.)))
-            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
+            MeshMaterial3d<StandardMaterial>(asset_value(color))
         ]
     }
 }
 
-pub fn corner_mesh() -> impl Scene {
+pub fn corner_mesh(color: Color) -> impl Scene {
     bsn! {
         Children [
             // First arm of the L-bend (e.g., stretching along Z)
             Transform::from_xyz(0.0, 0.0, -0.125)
             Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 0.75)))
-            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
+            MeshMaterial3d<StandardMaterial>(asset_value(color))
             --
             // Second arm of the L-bend (e.g., branching out along X)
             Transform::from_xyz(0.125, 0.0, 0.0)
             Mesh3d(asset_value(Cuboid::new(0.75, 0.2, 0.5)))
-            MeshMaterial3d<StandardMaterial>(asset_value(Color::srgb(1., 0., 0.)))
+            MeshMaterial3d<StandardMaterial>(asset_value(color))
         ]
     }
 }
