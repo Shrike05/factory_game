@@ -286,6 +286,8 @@ pub fn analyze_path(path: &[UVec2]) -> Vec<(UVec2, PathSegmentType)> {
     mesh_data
 }
 
+use std::f32::consts::FRAC_PI_2;
+
 // Helper to convert grid directions into 2D rotations (Quaternions)
 fn direction_to_rotation(dir: IVec2) -> Quat {
     // In grid space: dir.x is X, dir.y is Z
@@ -295,9 +297,18 @@ fn direction_to_rotation(dir: IVec2) -> Quat {
 
 fn corner_to_rotation(incoming: IVec2, outgoing: IVec2) -> Quat {
     match (incoming, outgoing) {
-        // Example: Coming from South (0, 1) and turning Right to East (1, 0)
-        (IVec2 { x: 0, y: 1 }, IVec2 { x: 1, y: 0 }) => Quat::from_rotation_y(0.0),
-        // Add other turn permutations (North-to-East, South-to-West, etc.) as needed
+        (IVec2 { x: 0, y: -1 }, IVec2 { x: 1, y: 0 })
+        | (IVec2 { x: -1, y: 0 }, IVec2 { x: 0, y: 1 }) => Quat::from_rotation_y(-FRAC_PI_2),
+
+        (IVec2 { x: 1, y: 0 }, IVec2 { x: 0, y: 1 })
+        | (IVec2 { x: 0, y: -1 }, IVec2 { x: -1, y: 0 }) => Quat::from_rotation_y(FRAC_PI_2 * 2.),
+
+        (IVec2 { x: 0, y: 1 }, IVec2 { x: -1, y: 0 })
+        | (IVec2 { x: 1, y: 0 }, IVec2 { x: 0, y: -1 }) => Quat::from_rotation_y(FRAC_PI_2),
+
+        (IVec2 { x: -1, y: 0 }, IVec2 { x: 0, y: -1 })
+        | (IVec2 { x: 0, y: 1 }, IVec2 { x: 1, y: 0 }) => Quat::from_rotation_y(0.),
+
         _ => Quat::IDENTITY,
     }
 }
