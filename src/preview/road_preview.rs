@@ -23,8 +23,7 @@ pub fn preview_road(mut commands: Commands, params: RoadPreviewParams) {
 
     let mut rc = params.road_constructor.clone();
     rc.set_end_coordinate(params.hovered_tile.pos);
-    let road = Road::new(rc.get_list()).unwrap();
-    let path_vec = road
+    let path_vec = rc
         .build_road_scenes(&params.build_map, Some(Color::srgb(1., 1., 1.)))
         .unwrap_or(vec![]);
     let mut path = path_vec.into_iter();

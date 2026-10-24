@@ -4,11 +4,11 @@ use std::path::Path;
 use bevy::prelude::*;
 
 use crate::factory::production::Production;
-use crate::factory::types::{FactoryDef, FactoryDefs};
+use crate::factory::types::{FactoryDef, FactoryDefs, RemoveFactoryMessage};
 use crate::factory::{FactoryType, Sink, Source};
 use crate::factory::{types::Factory, *};
 use crate::globals::*;
-use crate::road::BuildRoadMessage;
+use crate::road::{BuildRoadMessage, Road};
 use crate::states::BuildSelection;
 use crate::terrain::{BuildabilityMap, HoveredTile};
 
@@ -34,6 +34,25 @@ pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
 pub fn production_cycle(mut production: ResMut<Production>) {
     production.set_inventory_item(Item::Rock, 10.);
     production.production_cycle();
+}
+
+pub fn remove_factory(
+    mut commands: Commands,
+    query: Query<Entity, With<Factory>>,
+    mut prod: ResMut<Production>,
+    mut event: MessageReader<RemoveFactoryMessage>,
+    road_queries: Query<(Entity, &Road)>,
+) {
+    for ev in event.read() {
+        let mut en = commands.entity(ev.entity);
+        en.despawn();
+        prod.remove_factory(ev.entity);
+        for (road_entity, road) in road_queries.iter() {
+            if road.start_entity == ev.entity || road.end_entity == ev.entity {
+                commands.entity(road_entity).despawn();
+            }
+        }
+    }
 }
 
 pub fn spawn_factories(
@@ -64,8 +83,9 @@ pub fn spawn_factories(
             move |event: On<PointerClick>,
                   query: Query<&Transform>,
                   mut msg: MessageWriter<BuildRoadMessage>,
-                  build_selection: Res<State<BuildSelection>>| {
-                on_factory_click(event, query, msg, build_selection, entity_id)
+                  build_selection: Res<State<BuildSelection>>,
+                  mut remove_writer: MessageWriter<RemoveFactoryMessage>| {
+                on_factory_click(event, query, msg, build_selection, entity_id, remove_writer)
             },
         );
     }
@@ -77,6 +97,7 @@ fn on_factory_click(
     mut msg: MessageWriter<BuildRoadMessage>,
     build_selection: Res<State<BuildSelection>>,
     entity_id: Entity,
+    mut remove_writer: MessageWriter<RemoveFactoryMessage>,
 ) {
     if let Ok(transform) = query.get(event.event_target()) {
         match **build_selection {
@@ -86,11 +107,14 @@ fn on_factory_click(
                     entity_id,
                 ));
             }
-            _ => {
+            BuildSelection::Factory(_) | BuildSelection::None => {
                 msg.write(BuildRoadMessage::Start(
                     world_to_grid(&transform.translation),
                     entity_id,
                 ));
+            }
+            BuildSelection::Removing => {
+                remove_writer.write(RemoveFactoryMessage { entity: entity_id });
             }
         }
     }

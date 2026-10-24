@@ -1,38 +1,29 @@
 use crate::globals::*;
+use crate::road::RoadConstructor;
 use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
 use std::collections::{HashMap, HashSet};
 
-const SEARCH_DEPTH: u32 = 100;
+pub const SEARCH_DEPTH: u32 = 100;
 
 #[derive(Component, Clone, Hash, PartialEq, Eq, Debug)]
 pub struct Road {
     start: GridPos,
     waypoints: Box<[GridPos]>,
     end: GridPos,
+    pub start_entity: Entity,
+    pub end_entity: Entity,
 }
 
 impl Road {
-    pub fn new(points: Vec<GridPos>) -> Result<Road> {
-        if points.len() < 2 {
-            error!("Too few points");
-        }
-
-        let start = points[0];
-        let end = points[points.len() - 1];
-        if let Some(intermediates) = points.as_slice().get(1..points.len() - 1) {
-            Ok(Road {
-                start,
-                waypoints: Vec::from(intermediates).into_boxed_slice(),
-                end,
-            })
-        } else {
-            Ok(Road {
-                start,
-                waypoints: Box::new([]),
-                end,
-            })
-        }
+    pub fn from_road_construct(construct: &RoadConstructor) -> Result<Road> {
+        Ok(Road {
+            start: construct.get_start().0.unwrap(),
+            end: construct.get_end().0.unwrap(),
+            waypoints: construct.get_waypoints().clone().into_boxed_slice(),
+            start_entity: construct.get_start().1.unwrap(),
+            end_entity: construct.get_end().1.unwrap(),
+        })
     }
 
     pub fn real_pos(pos: &GridPos) -> Vec3 {
@@ -141,12 +132,21 @@ impl Road {
         Some(full_path)
     }
 
-    pub fn spawn_roads(&self, commands: &mut Commands, buildability_map: &mut BuildabilityMap) {
+    pub fn spawn_roads(
+        &self,
+        commands: &mut Commands,
+        buildability_map: &mut BuildabilityMap,
+    ) -> impl Scene {
         let res = self.build_road_scenes(buildability_map, None).unwrap();
+
+        let mut children = vec![];
         res.into_iter().for_each(|(pos, scene)| {
-            commands.spawn_scene(scene);
+            children.push(commands.spawn_scene(scene).id());
             buildability_map.set_real(pos, true);
         });
+
+        let mut road = commands.spawn((self.clone(), Transform::IDENTITY));
+        road.add_children(children.as_slice());
     }
 
     pub fn build_road_scenes(
@@ -290,13 +290,13 @@ pub fn analyze_path(path: &[UVec2]) -> Vec<(UVec2, PathSegmentType)> {
 use std::f32::consts::FRAC_PI_2;
 
 // Helper to convert grid directions into 2D rotations (Quaternions)
-fn direction_to_rotation(dir: IVec2) -> Quat {
+pub fn direction_to_rotation(dir: IVec2) -> Quat {
     // In grid space: dir.x is X, dir.y is Z
     let angle = (dir.x as f32).atan2(dir.y as f32);
     Quat::from_rotation_y(angle)
 }
 
-fn corner_to_rotation(incoming: IVec2, outgoing: IVec2) -> Quat {
+pub fn corner_to_rotation(incoming: IVec2, outgoing: IVec2) -> Quat {
     match (incoming, outgoing) {
         (IVec2 { x: 0, y: -1 }, IVec2 { x: 1, y: 0 })
         | (IVec2 { x: -1, y: 0 }, IVec2 { x: 0, y: 1 }) => Quat::from_rotation_y(-FRAC_PI_2),

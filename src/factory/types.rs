@@ -48,6 +48,11 @@ pub struct FactoryMap {
     pub shapes: HashMap<FactoryType, Box<[GridPos]>>,
 }
 
+#[derive(Message, Clone, Copy)]
+pub struct RemoveFactoryMessage {
+    pub entity: Entity,
+}
+
 #[derive(Message)]
 pub struct NewFactoryEvent {
     pub pos: GridPos,

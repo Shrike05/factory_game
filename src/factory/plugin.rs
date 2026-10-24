@@ -5,8 +5,8 @@ use bevy::{prelude::*, time::common_conditions::on_timer};
 use crate::{
     factory::{
         production::Production,
-        systems::{load_factory_defs, production_cycle, spawn_factories},
-        types::FactoryDefs,
+        systems::{load_factory_defs, production_cycle, remove_factory, spawn_factories},
+        types::{FactoryDefs, RemoveFactoryMessage},
         *,
     },
     states,
@@ -28,6 +28,8 @@ impl Plugin for FactoryPlugin {
             Update,
             production_cycle.run_if(on_timer(Duration::from_secs(1))),
         );
+        app.add_systems(Update, remove_factory);
         app.add_message::<NewFactoryEvent>();
+        app.add_message::<RemoveFactoryMessage>();
     }
 }

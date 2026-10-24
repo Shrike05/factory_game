@@ -37,8 +37,10 @@ pub fn tool_bar() -> impl Scene {
             @toolbar_button("Sink", BuildSelection::Factory(FactoryType::Sink))
             --
             @toolbar_button("Source", BuildSelection::Factory(FactoryType::Source))
-            --
+             --
             @toolbar_button("Factory", BuildSelection::Factory(FactoryType::Empty))
+            --
+            @toolbar_button("delete", BuildSelection::Removing)
         ]
     }
 }
