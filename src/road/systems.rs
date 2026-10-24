@@ -1,9 +1,6 @@
 use crate::{
     factory::Production,
-    road::{
-        BuildRoadMessage, RoadConstructor,
-        types::{Road, RoadAssets},
-    },
+    road::{BuildRoadMessage, Road, RoadConstructor, types::RoadAssets},
     states::BuildSelection,
     terrain::BuildabilityMap,
 };
@@ -36,7 +33,7 @@ pub fn spawn_road(
                 next_buildselection.set(BuildSelection::Road);
             }
             BuildRoadMessage::WayPoint(pos) => {
-                road_constructor.add_waypoints(&vec![*pos]);
+                road_constructor.add_waypoints(&[*pos]);
             }
             BuildRoadMessage::End(end, factory) => {
                 road_constructor.set_end(*end, *factory);
