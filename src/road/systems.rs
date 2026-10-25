@@ -25,7 +25,7 @@ pub fn spawn_road(
             }
             BuildRoadMessage::End(end, factory) => {
                 road_constructor.set_end(*end, *factory);
-                if let Ok(road) = Road::from_road_construct(&road_constructor) {
+                if let Some(road) = Road::from_road_construct(&road_constructor) {
                     let result = road.spawn_roads(&mut commands, &mut buildability_map);
 
                     let start_entity = commands
