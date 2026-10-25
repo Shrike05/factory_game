@@ -25,20 +25,23 @@ pub fn spawn_road(
             }
             BuildRoadMessage::End(end, factory) => {
                 road_constructor.set_end(*end, *factory);
-                if let Some(road) = Road::from_road_construct(&road_constructor) {
-                    let result = road.spawn_roads(&mut commands, &mut buildability_map);
 
-                    let start_entity = commands
-                        .get_entity(road_constructor.get_start().1.unwrap())
-                        .unwrap()
-                        .id();
-                    let end_entity = commands
-                        .get_entity(road_constructor.get_end().1.unwrap())
-                        .unwrap()
-                        .id();
+                let spawned = (|| {
+                    let start_entity = (*road_constructor.get_start().1)?;
+                    let end_entity = (*road_constructor.get_end().1)?;
 
-                    prod.add_connection(start_entity, end_entity);
-                } else {
+                    let start_id = commands.get_entity(start_entity).ok()?.id();
+                    let end_id = commands.get_entity(end_entity).ok()?.id();
+
+                    let road = Road::from_road_construct(&road_constructor)?;
+                    road.spawn_roads(&mut commands, &mut buildability_map)
+                        .ok()?;
+
+                    prod.add_connection(start_id, end_id);
+                    Some(())
+                })();
+
+                if spawned.is_none() {
                     println!("Couldn't spawn road");
                 }
 

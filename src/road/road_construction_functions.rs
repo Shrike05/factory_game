@@ -6,7 +6,7 @@ use std::f32::consts::FRAC_PI_2;
 
 pub const SEARCH_DEPTH: u32 = 100;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Copy)]
 pub enum PathSegmentType {
     Start { outgoing: IVec2 },
     End { incoming: IVec2 },
@@ -127,7 +127,8 @@ pub fn build_road_scene(
         return None;
     }
 
-    for (pos, path_type) in analysis[1..analysis.len() - 1].to_vec().into_iter() {
+    for (pos, path_type) in analysis[1..analysis.len() - 1].iter().copied() {
+        //for (pos, path_type) in analysis {
         let world_pos = Vec3::new(pos.x as f32, 0., pos.y as f32);
 
         let segment_scene: Box<dyn Scene> = match path_type {
@@ -241,6 +242,15 @@ pub fn straight_path_mesh(color: Color) -> impl Scene {
     bsn! {
         Children[
             Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 1.)))
+            MeshMaterial3d<StandardMaterial>(asset_value(color))
+        ]
+    }
+}
+
+pub fn end_mesh(color: Color) -> impl Scene {
+    bsn! {
+        Children[
+            Mesh3d(asset_value(Cuboid::new(0.5, 0.2, 0.5)))
             MeshMaterial3d<StandardMaterial>(asset_value(color))
         ]
     }

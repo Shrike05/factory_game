@@ -40,18 +40,26 @@ impl Road {
         create_candidate_road(&list, filter_map)
     }
 
-    pub fn spawn_roads(&self, commands: &mut Commands, buildability_map: &mut BuildabilityMap) {
-        let res = self.build_road_scenes(buildability_map, None).unwrap();
+    pub fn spawn_roads(
+        &self,
+        commands: &mut Commands,
+        buildability_map: &mut BuildabilityMap,
+    ) -> Result<(), &'static str> {
+        let res = self
+            .build_road_scenes(buildability_map, None)
+            .ok_or("Failed to build road scenes")?;
 
-        let mut children = vec![];
-        res.into_iter().for_each(|(pos, scene)| {
+        let mut children = Vec::with_capacity(res.len());
+        for (pos, scene) in res {
             children.push(commands.spawn_scene(scene).id());
             buildability_map.set_real(pos, true);
-        });
+        }
 
         commands
             .spawn((self.clone(), Transform::IDENTITY))
             .add_children(&children);
+
+        Ok(())
     }
 
     pub fn build_road_scenes(
