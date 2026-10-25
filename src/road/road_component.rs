@@ -1,8 +1,9 @@
 use crate::globals::*;
-use crate::road::RoadConstructor;
 use crate::road::road_construction_functions::{
     build_road_scene, build_road_scene_from_path, create_candidate_road,
 };
+use crate::road::{RemoveRoadMessage, RoadConstructor};
+use crate::states::BuildSelection;
 use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
 
@@ -46,9 +47,22 @@ impl Road {
             buildability_map.set_real(pos, true);
         }
 
-        commands
+        let road_entity = commands
             .spawn((self.clone(), Transform::IDENTITY))
-            .add_children(&children);
+            .add_children(&children)
+            .id();
+
+        commands.entity(road_entity).observe(
+            move |_event: On<PointerClick>,
+                  build_selection: Res<State<BuildSelection>>,
+                  mut remove_writer: MessageWriter<RemoveRoadMessage>| {
+                if **build_selection == BuildSelection::Removing {
+                    remove_writer.write(RemoveRoadMessage {
+                        entity: road_entity,
+                    });
+                }
+            },
+        );
 
         Ok(())
     }
