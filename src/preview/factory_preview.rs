@@ -52,11 +52,18 @@ pub fn preview_factory(
         .expect("Preview not initialized");
 
     if let BuildSelection::Factory(fac_type) = **build_select {
-        let tiles = fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type);
-        if !build_map.overlaps(&tiles) {
-            mat.0 = prev_mat.normal_mat.clone();
-        } else {
-            mat.0 = prev_mat.warning_mat.clone();
+        match fac_map.get_grid_tiles(&world_to_grid(&tran.translation), &fac_type) {
+            Ok(tiles) => {
+                if !build_map.overlaps(&tiles) {
+                    mat.0 = prev_mat.normal_mat.clone();
+                } else {
+                    mat.0 = prev_mat.warning_mat.clone();
+                }
+            }
+            Err(e) => {
+                error!("Failed to get grid tiles: {}", e);
+                mat.0 = prev_mat.warning_mat.clone();
+            }
         }
     }
 

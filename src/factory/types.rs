@@ -50,12 +50,15 @@ impl FactoryMap {
         }
     }
 
-    pub fn get_grid_tiles(&self, pos: &GridPos, factory_type: &FactoryType) -> Vec<GridPos> {
-        let shape = self.shapes.get(factory_type).expect(&format!(
-            "Factory '{:?}' doesn't have a shape",
-            factory_type
-        ));
-
-        shape.iter().map(|x| *x + *pos).collect()
+    pub fn get_grid_tiles(
+        &self,
+        pos: &GridPos,
+        factory_type: &FactoryType,
+    ) -> Result<Vec<GridPos>, String> {
+        let shape = self
+            .shapes
+            .get(factory_type)
+            .ok_or_else(|| format!("Factory '{:?}' doesn't have a shape", factory_type))?;
+        Ok(shape.iter().map(|x| *x + *pos).collect())
     }
 }
