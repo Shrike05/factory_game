@@ -1,35 +1,11 @@
-use std::fs;
-use std::path::Path;
-
-use bevy::prelude::*;
-
-use crate::factory::production::Production;
-use crate::factory::types::{FactoryDef, FactoryDefs, RemoveFactoryMessage};
-use crate::factory::{FactoryType, Sink, Source};
-use crate::factory::{types::Factory, *};
+use crate::factory::*;
 use crate::globals::*;
 use crate::road::{BuildRoadMessage, Road};
 use crate::states::BuildSelection;
 use crate::terrain::{BuildabilityMap, HoveredTile};
-
-pub fn load_factory_defs(mut factory_defs: ResMut<FactoryDefs>) {
-    let folder_path = Path::new("./assets/defs/");
-
-    let mut defs: Vec<FactoryDef> = Vec::new();
-
-    for entry in fs::read_dir(folder_path).expect("Couldn't read folder") {
-        let entry = entry.unwrap();
-        let path = entry.path();
-
-        if path.is_file() && path.extension().and_then(|s| s.to_str()) == Some("toml") {
-            let contents = fs::read_to_string(&path).expect("Couldn't get string content");
-            let factory_def: FactoryDef = toml::from_str(&contents).expect("Couldn't parse toml");
-            defs.push(factory_def);
-        }
-    }
-
-    factory_defs.defs = defs;
-}
+use bevy::prelude::*;
+use std::fs;
+use std::path::Path;
 
 pub fn production_cycle(mut production: ResMut<Production>) {
     production.set_inventory_item(Item::Rock, 10.);

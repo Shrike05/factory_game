@@ -3,12 +3,7 @@ use std::time::Duration;
 use bevy::{prelude::*, time::common_conditions::on_timer};
 
 use crate::{
-    factory::{
-        production::Production,
-        systems::{load_factory_defs, production_cycle, remove_factory, spawn_factories},
-        types::{FactoryDefs, RemoveFactoryMessage},
-        *,
-    },
+    factory::{systems::*, *},
     states,
 };
 
@@ -17,9 +12,7 @@ pub struct FactoryPlugin;
 impl Plugin for FactoryPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(FactoryMap::init_factory_map());
-        app.insert_resource(FactoryDefs::default());
         app.insert_resource(Production::default());
-        app.add_systems(Startup, load_factory_defs);
         app.add_systems(
             Update,
             spawn_factories.run_if(in_state(states::InFactoryMode::True)),
