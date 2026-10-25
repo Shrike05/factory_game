@@ -1,6 +1,8 @@
 use crate::globals::*;
 use crate::road::RoadConstructor;
-use crate::road::road_construction_functions::{build_road_scene, create_candidate_road};
+use crate::road::road_construction_functions::{
+    build_road_scene, build_road_scene_from_path, create_candidate_road,
+};
 use crate::terrain::BuildabilityMap;
 use bevy::prelude::*;
 
@@ -11,33 +13,24 @@ pub struct Road {
     end: GridPos,
     pub start_entity: Entity,
     pub end_entity: Entity,
+    pub path: Vec<GridPos>, // Store the exact path here
 }
 
 impl Road {
-    pub fn from_road_construct(construct: &RoadConstructor) -> Option<Road> {
+    pub fn from_road_construct(
+        construct: &RoadConstructor,
+        buildability_map: &BuildabilityMap,
+    ) -> Option<Road> {
+        let list = construct.get_list();
+        let path = create_candidate_road(&list, *buildability_map)?;
         Some(Road {
             start: (*construct.get_start().0)?,
             end: (*construct.get_end().0)?,
             waypoints: construct.get_waypoints().clone().into_boxed_slice(),
             start_entity: (*construct.get_start().1)?,
             end_entity: (*construct.get_end().1)?,
+            path,
         })
-    }
-
-    pub fn real_pos(pos: &GridPos) -> Vec3 {
-        Vec3::new(pos.x as f32, 0., pos.y as f32)
-    }
-
-    pub fn get_list(&self) -> Vec<GridPos> {
-        let mut result = self.waypoints.to_vec();
-        result.push(self.end);
-        result.insert(0, self.start);
-        result
-    }
-
-    pub fn create_candidate_road(&self, filter_map: BuildabilityMap) -> Option<Vec<GridPos>> {
-        let list = self.get_list();
-        create_candidate_road(&list, filter_map)
     }
 
     pub fn spawn_roads(
@@ -45,9 +38,7 @@ impl Road {
         commands: &mut Commands,
         buildability_map: &mut BuildabilityMap,
     ) -> Result<(), &'static str> {
-        let res = self
-            .build_road_scenes(buildability_map, None)
-            .ok_or("Failed to build road scenes")?;
+        let res = build_road_scene_from_path(&self.path, None);
 
         let mut children = Vec::with_capacity(res.len());
         for (pos, scene) in res {
@@ -62,12 +53,16 @@ impl Road {
         Ok(())
     }
 
-    pub fn build_road_scenes(
+    pub fn despawn_roads(
         &self,
-        buildability_map: &BuildabilityMap,
-        road_color: Option<Color>,
-    ) -> Option<Vec<(UVec2, Box<dyn Scene>)>> {
-        let list = self.get_list();
-        build_road_scene(&list, buildability_map, road_color)
+        commands: &mut Commands,
+        buildability_map: &mut BuildabilityMap,
+        road_entity: Entity,
+    ) {
+        // Clear buildability map using the exact stored path
+        for pos in &self.path {
+            buildability_map.set_real(*pos, false);
+        }
+        commands.entity(road_entity).despawn();
     }
 }

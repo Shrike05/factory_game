@@ -96,6 +96,12 @@ impl Production {
         self.sources.retain(|&e| e != entity);
     }
 
+    pub fn remove_connection(&mut self, from: Entity, to: Entity) {
+        if let Some(targets) = self.factory_connections.get_mut(&from) {
+            targets.retain(|&e| e != to);
+        }
+    }
+
     pub fn add_connection(&mut self, from: Entity, to: Entity) {
         self.factory_connections.entry(from).or_default().push(to);
     }

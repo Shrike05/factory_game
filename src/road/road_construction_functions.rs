@@ -165,6 +165,56 @@ pub fn build_road_scene(
     Some(scenes)
 }
 
+pub fn build_road_scene_from_path(
+    path: &[GridPos],
+    road_color: Option<Color>,
+) -> Vec<(UVec2, Box<dyn Scene>)> {
+    let color = road_color.unwrap_or(Color::srgb(0.54, 0.17, 0.14));
+    let uvec_path: Vec<UVec2> = path.iter().map(|p| UVec2::new(p.x, p.y)).collect();
+    let mut scenes = Vec::new();
+
+    let analysis = analyze_path(&uvec_path);
+    if analysis.len() < 2 {
+        return scenes;
+    }
+
+    for (pos, path_type) in analysis[1..analysis.len() - 1].iter().copied() {
+        let world_pos = Vec3::new(pos.x as f32, 0., pos.y as f32);
+
+        let segment_scene: Box<dyn Scene> = match path_type {
+            PathSegmentType::Start { outgoing }
+            | PathSegmentType::Straight {
+                direction: outgoing,
+            } => {
+                let rotation = direction_to_rotation(outgoing);
+                Box::new(bsn! {
+                    Transform::from_translation(world_pos).with_rotation(rotation)
+                    @straight_path_mesh(color)
+                })
+            }
+            PathSegmentType::Corner { incoming, outgoing } => {
+                let rotation = corner_to_rotation(incoming, outgoing);
+                Box::new(bsn! {
+                    Transform::from_translation(world_pos).with_rotation(rotation)
+                    @corner_mesh(color)
+                })
+            }
+            PathSegmentType::End { incoming } => {
+                let rotation = direction_to_rotation(incoming);
+                Box::new(bsn! {
+                    Transform::from_translation(world_pos).with_rotation(rotation)
+                    @straight_path_mesh(color)
+                })
+            }
+            PathSegmentType::SingleNode => continue,
+        };
+
+        scenes.push((pos, segment_scene));
+    }
+
+    scenes
+}
+
 pub fn direction_to_rotation(dir: IVec2) -> Quat {
     // In grid space: dir.x is X, dir.y is Z
     let angle = (dir.x as f32).atan2(dir.y as f32);

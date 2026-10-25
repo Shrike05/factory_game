@@ -29,14 +29,13 @@ impl BuildabilityMap {
         tiles.iter().any(|tile| self.get(tile.x, tile.y))
     }
 
-    pub fn set_real(&mut self, pos: GridPos, val: bool) -> Result<()> {
-        let index = self.pos_to_index(pos.x, pos.y);
-
-        if index >= SIZE_SQUARED {
-            error!("The position is outside the bounds of the bitmap")
+    pub fn set_real(&mut self, pos: GridPos, val: bool) -> Result<(), &'static str> {
+        if pos.x >= SIZE as u32 || pos.y >= SIZE as u32 {
+            error!("The position is outside the bounds of the bitmap");
+            return Err("The position is outside the bounds of the bitmap");
         }
+        let index = self.pos_to_index(pos.x, pos.y);
         self.map.set(index, val);
-
         Ok(())
     }
 }

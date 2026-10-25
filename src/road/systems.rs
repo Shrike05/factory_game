@@ -1,6 +1,6 @@
 use crate::{
     factory::Production,
-    road::{BuildRoadMessage, Road, RoadConstructor},
+    road::{BuildRoadMessage, RemoveRoadMessage, Road, RoadConstructor},
     states::BuildSelection,
     terrain::BuildabilityMap,
 };
@@ -33,7 +33,7 @@ pub fn spawn_road(
                     let start_id = commands.get_entity(start_entity).ok()?.id();
                     let end_id = commands.get_entity(end_entity).ok()?.id();
 
-                    let road = Road::from_road_construct(&road_constructor)?;
+                    let road = Road::from_road_construct(&road_constructor, &buildability_map)?;
                     road.spawn_roads(&mut commands, &mut buildability_map)
                         .ok()?;
 
@@ -48,6 +48,24 @@ pub fn spawn_road(
                 next_buildselection.set(BuildSelection::None);
                 *road_constructor = RoadConstructor::empty();
             }
+        }
+    }
+}
+
+pub fn remove_road(
+    mut commands: Commands,
+    mut prod: ResMut<Production>,
+    mut remove_road_message: MessageReader<RemoveRoadMessage>,
+    mut buildability_map: ResMut<BuildabilityMap>,
+    road_query: Query<(Entity, &Road)>,
+) {
+    for msg in remove_road_message.read() {
+        if let Ok((road_entity, road)) = road_query.get(msg.entity) {
+            // 1. Remove the connection from the production graph
+            prod.remove_connection(road.start_entity, road.end_entity);
+
+            // 2. Clear buildability map and despawn road entities
+            road.despawn_roads(&mut commands, &mut buildability_map, road_entity);
         }
     }
 }

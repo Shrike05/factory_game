@@ -7,3 +7,9 @@ pub enum BuildRoadMessage {
     WayPoint(GridPos),
     End(GridPos, Entity),
 }
+
+//This Struct
+#[derive(Message, Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub struct RemoveRoadMessage {
+    pub entity: Entity,
+}

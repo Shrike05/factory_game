@@ -1,5 +1,6 @@
 use crate::factory::*;
 use crate::globals::*;
+use crate::road::RemoveRoadMessage;
 use crate::road::{BuildRoadMessage, Road};
 use crate::states::BuildSelection;
 use crate::terrain::{BuildabilityMap, HoveredTile};
@@ -18,6 +19,7 @@ pub fn remove_factory(
     mut prod: ResMut<Production>,
     mut event: MessageReader<RemoveFactoryMessage>,
     road_queries: Query<(Entity, &Road)>,
+    mut remove_writer: MessageWriter<RemoveRoadMessage>,
 ) {
     for ev in event.read() {
         let mut en = commands.entity(ev.entity);
@@ -25,7 +27,9 @@ pub fn remove_factory(
         prod.remove_factory(ev.entity);
         for (road_entity, road) in road_queries.iter() {
             if road.start_entity == ev.entity || road.end_entity == ev.entity {
-                commands.entity(road_entity).despawn();
+                remove_writer.write(RemoveRoadMessage {
+                    entity: road_entity,
+                });
             }
         }
     }
