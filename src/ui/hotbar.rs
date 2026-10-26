@@ -31,7 +31,7 @@ pub fn tool_bar() -> impl Scene {
         BorderColor::all(Color::BLACK)
         BackgroundColor(Color::BLACK)
         Children[
-            {(0..9).map(|x|{
+            {(0..10).map(|x|{
                 bsn! {
                  @toolbar_button(x)
                 }
@@ -50,12 +50,13 @@ fn toolbar_button(n: usize) -> impl Scene {
             flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            border: UiRect {
-                left: px(1.0),
-                right: px(1.0),
-                top: px(1.0),
-                bottom: px(1.0),
-            },
+            border: UiRect::all(Val::Px(2.)),
+        }
+        SmoothButtonAnimation::default()
+        Hovered::default()
+        UiTransform{
+            scale: Vec2::ONE,
+            translation: Val2::px(0., 0.)
         }
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
         Children [
@@ -84,17 +85,6 @@ fn toolbar_button(n: usize) -> impl Scene {
                 TextFont { font_size: FontSize::Px(22.) }
                 Children [
                     Text::new(format!("F{n}"))
-                ]
-                --
-                Node {
-                    position_type: PositionType::Absolute,
-                    right: px(5.0),
-                    bottom: px(3.0),
-                }
-                TextColor(Color::srgb(1.000, 1.000, 1.000))
-                TextFont { font_size: FontSize::Px(11.)}
-                Children [
-                    Text::new(format!("x{n}"))
                 ]
             ]
         ]
