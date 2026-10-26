@@ -1,14 +1,31 @@
 use crate::factory::*;
 use bevy::prelude::*;
 use std::collections::HashMap;
+use strum::IntoEnumIterator;
 
-#[derive(Debug, Clone, Default, Resource)]
+#[derive(Debug, Clone, Resource)]
 pub struct Production {
     pub factories: HashMap<Entity, Factory>,
     pub factory_connections: HashMap<Entity, Vec<Entity>>, // Maps factory Entity -> downstream factory Entities
     pub sources: Vec<Entity>,                              // Entry points of the production chain
     pub sinks: Vec<Entity>, // Exit points that deposit into global inventory
     pub inventory: HashMap<Item, f64>,
+}
+
+impl Default for Production {
+    fn default() -> Self {
+        let mut inventory = HashMap::new();
+        for item in Item::iter() {
+            inventory.insert(item, 0.);
+        }
+        Production {
+            factories: HashMap::default(),
+            factory_connections: HashMap::default(),
+            sources: Vec::default(),
+            sinks: Vec::default(),
+            inventory,
+        }
+    }
 }
 
 impl Production {
@@ -129,7 +146,7 @@ impl Production {
         // 2. Calculate in-degrees for topological sorting
         let mut in_degrees: HashMap<Entity, usize> = all_entities.iter().map(|&e| (e, 0)).collect();
 
-        for (_from, targets) in &self.factory_connections {
+        for targets in self.factory_connections.values() {
             for &to in targets {
                 *in_degrees.entry(to).or_default() += 1;
             }
@@ -155,7 +172,7 @@ impl Production {
                 // Sinks absorb all incoming rates and deposit into inventory
                 if let Some(available_inputs) = incoming_rates.get(&current_id) {
                     for (item, rate) in available_inputs {
-                        *inventory_deposits.entry(item.clone()).or_default() += *rate as f64;
+                        *inventory_deposits.entry(*item).or_default() += *rate as f64;
                     }
                 }
                 // Sinks have no outgoing propagation
@@ -169,7 +186,7 @@ impl Production {
                         if let Some(downstream_factory) = self.factories.get(&downstream_id) {
                             let dest_pool = incoming_rates.entry(downstream_id).or_default();
                             for (item, rate) in &downstream_factory.input {
-                                *dest_pool.entry(item.clone()).or_default() += *rate;
+                                *dest_pool.entry(*item).or_default() += *rate;
                             }
                         }
 
@@ -209,7 +226,7 @@ impl Production {
                 let actual_output: Vec<(Item, f32)> = factory
                     .output
                     .iter()
-                    .map(|(item, rate)| (item.clone(), rate * scale_factor))
+                    .map(|(item, rate)| (*item, rate * scale_factor))
                     .collect();
 
                 // Propagate outputs to downstream connections
@@ -217,7 +234,7 @@ impl Production {
                     for &downstream_id in downstreams {
                         let dest_pool = incoming_rates.entry(downstream_id).or_default();
                         for (item, rate) in &actual_output {
-                            *dest_pool.entry(item.clone()).or_default() += *rate;
+                            *dest_pool.entry(*item).or_default() += *rate;
                         }
 
                         if let Some(deg) = in_degrees.get_mut(&downstream_id) {

@@ -110,8 +110,8 @@ pub fn toolbar_item(n: usize) -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
             }
-            on(|event: On<Activate>, mut next_state: ResMut<NextState<BuildSelection>>|{
-                next_state.set(BuildSelection::Factory(FactoryType::Empty));
+            on(move |event: On<Activate>, mut next_state: ResMut<NextState<BuildSelection>>|{
+                next_state.set(BuildSelection::Factory(t.unwrap_or(FactoryType::Empty)));
             })
             ToolBarItem(t)
             Visibility::Hidden

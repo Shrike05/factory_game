@@ -1,5 +1,6 @@
 use crate::factory::FactoryType;
 use crate::ui::hotbar::tool_bar_item_update;
+use crate::ui::info_panel::update_info_items;
 use crate::ui::systems::{
     slide_panel_animation, update_button_flashes, update_button_hover_styles,
 };
@@ -26,5 +27,6 @@ impl Plugin for UiPlugin {
             ),
         );
         app.add_systems(Update, tool_bar_item_update);
+        app.add_systems(Update, update_info_items);
     }
 }

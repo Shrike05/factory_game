@@ -1,6 +1,8 @@
 use bevy::ui_widgets::Button;
 use bevy::{prelude::*, ui_widgets::Activate};
+use strum::IntoEnumIterator;
 
+use crate::factory::{Item, Production};
 use crate::ui::types::{PanelState, PopoutButton, SlidePanel};
 
 pub fn info_panel() -> impl Scene {
@@ -75,11 +77,11 @@ pub fn info_panel() -> impl Scene {
                 TextColor(Color::srgb(0.796, 0.835, 0.882))
                 TextFont { font_size: FontSize::Px(13.0)}
                 Children[
-                  {(0..10).map(|x|{
-                      bsn! {
-                          @info_item(format!("Item {x}"), 100 * x as u64)
-                      }
-                  }).collect::<Vec<_>>()}
+                {
+                    Item::iter().map(|item|{
+                        info_item(item, 0)
+                    }).collect::<Vec<_>>()
+                }
                 ]
             ]
             --
@@ -115,7 +117,7 @@ pub fn info_panel() -> impl Scene {
     }
 }
 
-fn info_item(label: String, amount: u64) -> impl Scene {
+fn info_item(item: Item, amount: u64) -> impl Scene {
     bsn! {
         Node {
             display: Display::Flex,
@@ -126,14 +128,26 @@ fn info_item(label: String, amount: u64) -> impl Scene {
             Node::default()
             TextColor(Color::srgb(0.580, 0.639, 0.722))
             Children [
-                Text::new(format!("{label}:"))
+                Text::new(format!("{item:?}:"))
             ]
             --
             Node::default()
             TextColor(Color::srgb(0.973, 0.980, 0.988))
             Children [
+                InfoItem(item)
                 Text::new(format!("{amount}"))
             ]
         ]
+    }
+}
+
+#[derive(Component, Clone, Copy, Default)]
+pub struct InfoItem(Item);
+
+pub fn update_info_items(mut info_items: Query<(&mut Text, &InfoItem)>, prod: Res<Production>) {
+    for (mut text, item) in info_items.iter_mut() {
+        if let Some(amount) = prod.inventory.get(&item.0) {
+            text.0 = amount.to_string();
+        }
     }
 }

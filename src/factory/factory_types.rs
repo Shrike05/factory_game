@@ -31,8 +31,8 @@ impl Factory {
     pub fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
         let (input, output) = match factory_type {
             FactoryType::Empty => (vec![(Item::Rock, 2.)], vec![(Item::Iron, 1.)]),
-            FactoryType::Source => (vec![], vec![(Item::Rock, 1.)]),
-            FactoryType::Sink => (vec![(Item::Iron, 1.)], vec![]),
+            FactoryType::Source => (vec![], vec![]),
+            FactoryType::Sink => (vec![], vec![]),
         };
 
         Factory {
