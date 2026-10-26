@@ -36,12 +36,34 @@ pub fn tool_bar() -> impl Scene {
                  @hot_item(x)
                 }
             }).collect::<Vec<_>>()}
+            --
+            Node{
+                flex_direction: FlexDirection::Column,
+                height: percent(100.)
+            }
+            Children[
+                Button
+                Node{
+                    width: px(30.0),
+                    height: px(30.0),
+                    align_items: AlignItems::Center,
+                    align_content: AlignContent::Center,
+                    justify_content: JustifyContent::Center,
+                }
+                BackgroundColor(Color::srgb(1., 0., 0.))
+                TextFont { font_size: FontSize::Px(15.) }
+                on(|event: On<PointerClick>, mut next_state: ResMut<NextState<BuildSelection>>|{
+                    next_state.set(BuildSelection::Removing);
+                })
+                Children[Text::new("T")]
+            ]
         ]
     }
 }
 
 pub fn hot_item(n: usize) -> impl Scene {
     bsn! {
+        Button
         Node {
             width: px(80.0),
             height: px(80.0),
@@ -58,6 +80,10 @@ pub fn hot_item(n: usize) -> impl Scene {
             scale: Vec2::ONE,
             translation: Val2::px(0., 0.)
         }
+        on(|event: On<Activate>, mut next_state: ResMut<NextState<BuildSelection>>|{
+            next_state.set(BuildSelection::Factory(FactoryType::Empty));
+        })
+
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
         Children [
             Node {
@@ -67,9 +93,7 @@ pub fn hot_item(n: usize) -> impl Scene {
             }
             TextColor(Color::srgb(0.392, 0.455, 0.545))
             TextFont { font_size: FontSize::Px(10.) }
-            Children [
-                Text::new(format!("{n}"))
-            ]
+            Text::new(format!("{n}"))
             --
             Node {
                 width: percent(100.0),
@@ -83,9 +107,7 @@ pub fn hot_item(n: usize) -> impl Scene {
             Children [
                 Node::default()
                 TextFont { font_size: FontSize::Px(22.) }
-                Children [
-                    Text::new(format!("F{n}"))
-                ]
+                Text::new(format!("F{n}"))
             ]
         ]
     }

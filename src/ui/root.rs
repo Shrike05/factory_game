@@ -5,6 +5,7 @@ use crate::ui::{hotbar::tool_bar, info_panel::info_panel, tool_grid::grid, top_b
 pub fn root_ui() -> impl Scene {
     bsn! {
         // Unrepresentable CSS: 'user-select:' (User text selection cannot be configured via Bevy Node)
+        Pickable::IGNORE
         Node {
             width: Val::Vw(100.0),
             height: Val::Vh(100.0),
@@ -31,6 +32,7 @@ pub fn root_ui() -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Start,
             }
+            Pickable::IGNORE
             Children[@top_bar()]
             --
             @info_panel()
@@ -45,6 +47,7 @@ pub fn root_ui() -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::End,
             }
+            Pickable::IGNORE
             Children[@tool_bar()]
         ]
     }
