@@ -1,7 +1,8 @@
-use crate::ui::hotbar::{SmoothButtonAnimation, hot_item};
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui_widgets::Button;
+
+use crate::ui::types::SmoothButtonAnimation;
 
 pub fn grid() -> impl Scene {
     bsn! {
