@@ -65,13 +65,6 @@ pub fn tool_bar() -> impl Scene {
 }
 
 pub fn toolbar_item(n: usize) -> impl Scene {
-    let t = match n {
-        0 => Some(FactoryType::Empty),
-        1 => Some(FactoryType::Sink),
-        2 => Some(FactoryType::Source),
-        _ => None,
-    };
-
     bsn! {
         Node {
             width: px(80.0),
@@ -96,10 +89,8 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             mut toolbar_query: Query<&mut ToolBarItem>,
             children_query: Query<&Children>| {
             // Check if the dragged entity has a PaletteItem
-            println!("{}", event.dropped);
             if let Ok(palette) = palette_query.get(event.dropped) {
                 // Assign to slot button (searches self or child button)
-                println!("{palette:?}");
                 if let Ok(mut item) = toolbar_query.get_mut(event.entity) {
                     item.0 = Some(palette.0);
                 } else if let Ok(children) = children_query.get(event.entity) {
@@ -135,17 +126,15 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             on(|event: On<Activate>,
                 items: Query<&ToolBarItem>,
                 mut next_state: ResMut<NextState<BuildSelection>>| {
-                if let Ok(item) = items.get(event.entity) {
-                    if let Some(factory) = item.0 {
-                        next_state.set(BuildSelection::Factory(factory));
-                    }
+                if let Ok(item) = items.get(event.entity) && let Some(factory) = item.0 {
+                    next_state.set(BuildSelection::Factory(factory));
                 }
             })
-            ToolBarItem(t)
+            ToolBarItem(None)
             Visibility::Hidden
             Children [
                 TextFont { font_size: FontSize::Px(22.) }
-                Text::new(format!("{:?}", t.unwrap_or(FactoryType::Empty)))
+                Text::new("")
             ]
         ]
     }
