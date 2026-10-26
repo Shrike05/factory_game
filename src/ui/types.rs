@@ -25,8 +25,8 @@ pub struct ButtonFlashTimer(pub Timer);
 
 #[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Default)]
 pub enum PanelState {
-    #[default]
     Open,
+    #[default]
     Closed,
 }
 

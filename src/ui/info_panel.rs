@@ -88,11 +88,13 @@ pub fn info_panel() -> impl Scene {
             // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
             Node {
                 width: px(24.0),
-                height: percent(100.0),
+                height: px(100.0),
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
+                border_radius: BorderRadius::right(CornerRadius::circular(Val::Px(19.)))
             }
+            BackgroundColor(Color::BLACK)
             PopoutButton("info")
             on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
                 if let Ok(popout) = popouts.get(event.entity) {
@@ -107,17 +109,6 @@ pub fn info_panel() -> impl Scene {
                 }
             })
             Children [
-                Node{
-                    width: percent(100.),
-                    border: UiRect {
-                        left: px(2.0),
-                        right: px(2.0),
-                        top: px(2.0),
-                        bottom: px(2.0),
-                    },
-                }
-                TextFont { font_size: FontSize::Px(20.0)}
-                BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
                 Text::new("<")
             ]
         ]

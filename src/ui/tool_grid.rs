@@ -19,23 +19,16 @@ pub fn grid() -> impl Scene {
         SlidePanel::new("grid".into(), 95., true)
         ZIndex(10)
         Children [
-            Button //Popout Button Need to Implement
+            Button
             Node {
                 width: px(24.0),
-                height: px(50.0),
+                height: px(80.0),
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                border: UiRect {
-                    left: px(2.0),
-                    right: px(2.0),
-                    top: px(2.0),
-                    bottom: px(2.0),
-                },
+                border_radius: BorderRadius::left(CornerRadius::circular(Val::Px(19.)))
             }
-            BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
-            TextColor(Color::srgb(0.220, 0.741, 0.973))
-            TextFont { font_size: FontSize::Px(11.) }
+            BackgroundColor(Color::BLACK)
             PopoutButton("grid")
             on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
                 if let Ok(popout) = popouts.get(event.entity) {
