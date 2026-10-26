@@ -1,5 +1,7 @@
-use bevy::prelude::*;
 use bevy::ui_widgets::Button;
+use bevy::{prelude::*, ui_widgets::Activate};
+
+use crate::ui::types::{PanelState, PopoutButton, SlidePanel};
 
 pub fn info_panel() -> impl Scene {
     bsn! {
@@ -12,6 +14,8 @@ pub fn info_panel() -> impl Scene {
             flex_direction: FlexDirection::Row,
             align_items: AlignItems::FlexStart,
         }
+        UiTransform::default()
+        SlidePanel::new("info".into(), 90., false)
         ZIndex(10)
         Children [
             // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
@@ -89,6 +93,19 @@ pub fn info_panel() -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
             }
+            PopoutButton("info")
+            on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
+                if let Ok(popout) = popouts.get(event.entity) {
+                    for mut slide_panel in slide_panels.iter_mut(){
+                        if slide_panel.name == popout.0{
+                            slide_panel.state = match slide_panel.state{
+                                PanelState::Open => PanelState::Closed,
+                                PanelState::Closed => PanelState::Open
+                            }
+                        }
+                    }
+                }
+            })
             Children [
                 Node{
                     width: percent(100.),

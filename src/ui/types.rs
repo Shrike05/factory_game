@@ -34,12 +34,19 @@ pub enum PanelState {
 pub struct SlidePanel {
     pub name: String,
     pub state: PanelState,
+    pub width: f32,
     pub transition_speed: f32,
+    pub to_right: bool,
 }
 
 impl SlidePanel {
-    pub fn new(name: String) -> Self {
-        SlidePanel { name, ..default() }
+    pub fn new(name: String, width: f32, to_right: bool) -> Self {
+        SlidePanel {
+            name,
+            to_right,
+            width,
+            ..default()
+        }
     }
 }
 

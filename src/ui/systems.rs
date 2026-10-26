@@ -53,7 +53,7 @@ pub fn slide_panel_animation(time: Res<Time>, mut query: Query<(&SlidePanel, &mu
         // When closed, slide it to the right by its full width to hide it
         let target_x = match panel.state {
             PanelState::Open => 0.0,
-            PanelState::Closed => 95.,
+            PanelState::Closed => panel.width * if panel.to_right { 1. } else { -1. },
         };
 
         // Extract current X translation (adjust based on how Val2 exposes its inner values)

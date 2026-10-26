@@ -16,7 +16,7 @@ pub fn grid() -> impl Scene {
             align_items: AlignItems::Center,
         }
         UiTransform::default()
-        SlidePanel::new("grid".into())
+        SlidePanel::new("grid".into(), 95., true)
         ZIndex(10)
         Children [
             Button //Popout Button Need to Implement
