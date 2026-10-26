@@ -1,4 +1,5 @@
-use crate::ui::hotbar::hot_item;
+use crate::ui::hotbar::{SmoothButtonAnimation, hot_item};
+use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui_widgets::Button;
 
@@ -109,6 +110,12 @@ fn grid_item(n: usize) -> impl Scene {
                 top: px(1.0),
                 bottom: px(1.0),
             },
+        }
+        SmoothButtonAnimation::default()
+        Hovered::default()
+        UiTransform{
+            scale: Vec2::ONE,
+            translation: Val2::px(0., 0.)
         }
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
         Children [
