@@ -2,8 +2,8 @@ use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
 use bevy::ui_widgets::{Activate, Button};
 
-use crate::ui::hotbar::ToolBarItem;
-use crate::ui::types::{PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation};
+use crate::factory::FactoryType;
+use crate::ui::types::{PaletteItem, PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation};
 
 pub fn grid() -> impl Scene {
     bsn! {
@@ -65,7 +65,7 @@ pub fn grid() -> impl Scene {
             BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
             BackgroundColor(Color::BLACK)
             Children [
-                //Text Storage Chest
+                // Text Storage Chest
                 Node {
                     display: Display::Flex,
                     flex_direction: FlexDirection::Column,
@@ -81,7 +81,7 @@ pub fn grid() -> impl Scene {
                 Children [
                     Text::new("Factories")
                 ]
-                -- //Actual Grid
+                -- // Actual Grid (4x4 static palette)
                 Node {
                     display: Display::Grid,
                     grid_template_columns: vec![RepeatedGridTrack::flex(4, 1.0)],
@@ -101,24 +101,31 @@ pub fn grid() -> impl Scene {
     }
 }
 
+/// Map grid index to a FactoryType variant
+fn factory_for_index(n: usize) -> FactoryType {
+    match n {
+        0 => FactoryType::Empty,
+        1 => FactoryType::Sink,
+        _ => FactoryType::Source, // Adjust to match your FactoryType enum variants
+    }
+}
+
 fn grid_item(n: usize) -> impl Scene {
+    let factory = factory_for_index(n);
+
     bsn! {
-        // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
+        Button
         Node {
             width: px(100.0),
             height: px(100.0),
             display: Display::Flex,
-            //position_type: PositionType::Relative,
             flex_direction: FlexDirection::Column,
             justify_content: JustifyContent::Center,
             align_items: AlignItems::Center,
-            border: UiRect {
-                left: px(1.0),
-                right: px(1.0),
-                top: px(1.0),
-                bottom: px(1.0),
-            },
+            border: UiRect::all(Val::Px(1.0)),
         }
+        // PaletteItem marks this item as a static source for drag-and-drop
+        PaletteItem(factory)
         SmoothButtonAnimation::default()
         Hovered::default()
         UiTransform{
@@ -136,15 +143,14 @@ fn grid_item(n: usize) -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
             }
-            ToolBarItem(None)
-            Visibility::Hidden
-
+            Pickable::IGNORE
             Children [
-                // Unrepresentable CSS: 'filter:' (CSS blur/filters are not supported on Bevy UI nodes)
                 Node::default()
-                TextFont { font_size: FontSize::Px(22.0)}
+                Pickable::IGNORE
+                TextFont { font_size: FontSize::Px(22.0) }
                 Children [
-                    Text::new(format!("F{n}"))
+                    Pickable::IGNORE
+                    Text::new(format!("{factory:?}"))
                 ]
             ]
         ]

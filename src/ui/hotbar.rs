@@ -1,12 +1,12 @@
 use bevy::{
-    log::tracing_subscriber::fmt::format,
     picking::hover::Hovered,
     prelude::*,
     ui_widgets::{Activate, Button},
 };
 
+use crate::factory::FactoryType;
 use crate::states::BuildSelection;
-use crate::{factory::FactoryType, ui::types::SmoothButtonAnimation};
+use crate::ui::types::{PaletteItem, SmoothButtonAnimation};
 
 pub fn tool_bar() -> impl Scene {
     bsn! {
@@ -33,7 +33,7 @@ pub fn tool_bar() -> impl Scene {
         Children[
             {(0..10).map(|x|{
                 bsn! {
-                 @toolbar_item(x)
+                    @toolbar_item(x)
                 }
             }).collect::<Vec<_>>()}
             --
@@ -71,6 +71,7 @@ pub fn toolbar_item(n: usize) -> impl Scene {
         2 => Some(FactoryType::Source),
         _ => None,
     };
+
     bsn! {
         Node {
             width: px(80.0),
@@ -88,8 +89,28 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             scale: Vec2::ONE,
             translation: Val2::px(0., 0.)
         }
-
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
+        // Accept drops from palette items:
+        on(|event: On<PointerDragDrop>,
+            palette_query: Query<&PaletteItem>,
+            mut toolbar_query: Query<&mut ToolBarItem>,
+            children_query: Query<&Children>| {
+            // Check if the dragged entity has a PaletteItem
+            println!("{}", event.dropped);
+            if let Ok(palette) = palette_query.get(event.dropped) {
+                // Assign to slot button (searches self or child button)
+                println!("{palette:?}");
+                if let Ok(mut item) = toolbar_query.get_mut(event.entity) {
+                    item.0 = Some(palette.0);
+                } else if let Ok(children) = children_query.get(event.entity) {
+                    for child in children.iter() {
+                        if let Ok(mut item) = toolbar_query.get_mut(child) {
+                            item.0 = Some(palette.0);
+                        }
+                    }
+                }
+            }
+        })
         Children [
             Node {
                 position_type: PositionType::Absolute,
@@ -110,8 +131,15 @@ pub fn toolbar_item(n: usize) -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
             }
-            on(move |event: On<Activate>, mut next_state: ResMut<NextState<BuildSelection>>|{
-                next_state.set(BuildSelection::Factory(t.unwrap_or(FactoryType::Empty)));
+            // Read active ToolBarItem dynamically on click
+            on(|event: On<Activate>,
+                items: Query<&ToolBarItem>,
+                mut next_state: ResMut<NextState<BuildSelection>>| {
+                if let Ok(item) = items.get(event.entity) {
+                    if let Some(factory) = item.0 {
+                        next_state.set(BuildSelection::Factory(factory));
+                    }
+                }
             })
             ToolBarItem(t)
             Visibility::Hidden
@@ -126,13 +154,27 @@ pub fn toolbar_item(n: usize) -> impl Scene {
 #[derive(Component, Clone, Copy, Default)]
 pub struct ToolBarItem(pub Option<FactoryType>);
 
+/// Updates visibility and text when ToolBarItem changes
 pub fn tool_bar_item_update(
-    mut tool_bar_item_query: Query<(&mut Visibility, &ToolBarItem), Changed<ToolBarItem>>,
+    mut tool_bar_item_query: Query<
+        (&mut Visibility, &ToolBarItem, &Children),
+        Changed<ToolBarItem>,
+    >,
+    mut text_query: Query<&mut Text>,
 ) {
-    for (mut visibility, item) in tool_bar_item_query.iter_mut() {
-        *visibility = match item.0 {
-            Some(_) => Visibility::Visible,
-            None => Visibility::Hidden,
+    for (mut visibility, item, children) in tool_bar_item_query.iter_mut() {
+        match item.0 {
+            Some(factory) => {
+                *visibility = Visibility::Visible;
+                for child in children.iter() {
+                    if let Ok(mut text) = text_query.get_mut(child) {
+                        *text = Text::new(format!("{factory:?}"));
+                    }
+                }
+            }
+            None => {
+                *visibility = Visibility::Hidden;
+            }
         }
     }
 }

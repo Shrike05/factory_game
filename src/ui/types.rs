@@ -1,4 +1,10 @@
+use crate::factory::FactoryType;
 use bevy::prelude::*;
+
+/// Component attached to static grid palette items
+/// Holds the factory type this item provides when dragged.
+#[derive(Component, Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct PaletteItem(pub FactoryType);
 
 /// Component to track smooth hover interpolation
 #[derive(Component, Clone)]
