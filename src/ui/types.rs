@@ -45,7 +45,8 @@ impl SlidePanel {
             name,
             to_right,
             width,
-            ..default()
+            state: PanelState::default(),
+            transition_speed: 10.,
         }
     }
 }
