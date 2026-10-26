@@ -73,7 +73,7 @@ pub fn info_panel() -> impl Scene {
                 Children[
                   {(0..10).map(|x|{
                       bsn! {
-                          @info_item(format!("F{x}"), x as u64)
+                          @info_item(format!("Item {x}"), 100 * x as u64)
                       }
                   }).collect::<Vec<_>>()}
                 ]

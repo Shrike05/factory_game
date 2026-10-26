@@ -120,18 +120,6 @@ fn grid_item(n: usize) -> impl Scene {
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
         Children [
             Node {
-                position_type: PositionType::Absolute,
-                left: px(6.0),
-                top: px(4.0),
-            }
-            TextColor(Color::srgb(0.392, 0.455, 0.545))
-            TextFont { font_size: FontSize::Px(10.0)}
-            Children [
-                Text::new(format!("{n}"))
-            ]
-            --
-            // Unrepresentable CSS: 'cursor:' (Cursor styling is managed at the Window level or via custom interaction plugins)
-            Node {
                 width: percent(100.0),
                 height: percent(100.0),
                 display: Display::Flex,
