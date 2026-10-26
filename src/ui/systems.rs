@@ -47,3 +47,23 @@ pub fn update_button_flashes(
         }
     }
 }
+
+pub fn slide_panel_animation(time: Res<Time>, mut query: Query<(&SlidePanel, &mut UiTransform)>) {
+    for (panel, mut ui_transform) in &mut query {
+        // When closed, slide it to the right by its full width to hide it
+        let target_x = match panel.state {
+            PanelState::Open => 0.0,
+            PanelState::Closed => 95.,
+        };
+
+        // Extract current X translation (adjust based on how Val2 exposes its inner values)
+        let current_x = ui_transform.translation.x;
+
+        // Smoothly interpolate towards the target X position
+        //let new_x = current_x + (target_x - current_x) * (panel.transition_speed * time.delta_secs()).min(1.0);
+        let new_x = target_x;
+
+        // Apply back to translation
+        ui_transform.translation = Val2::percent(new_x, 0.0);
+    }
+}

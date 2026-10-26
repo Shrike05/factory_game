@@ -22,3 +22,27 @@ impl Default for SmoothButtonAnimation {
 
 #[derive(Component)]
 pub struct ButtonFlashTimer(pub Timer);
+
+#[derive(Component, Clone, Copy, PartialEq, Eq, Debug, Default)]
+pub enum PanelState {
+    #[default]
+    Open,
+    Closed,
+}
+
+#[derive(Component, Clone, Default)]
+pub struct SlidePanel {
+    pub name: String,
+    pub state: PanelState,
+    pub transition_speed: f32,
+}
+
+impl SlidePanel {
+    pub fn new(name: String) -> Self {
+        SlidePanel { name, ..default() }
+    }
+}
+
+// Marker component for the arrow text so we can toggle it easily
+#[derive(Component, Clone, Default)]
+pub struct PopoutButton(pub String);

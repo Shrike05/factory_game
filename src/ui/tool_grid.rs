@@ -1,13 +1,12 @@
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
-use bevy::ui_widgets::Button;
+use bevy::ui_widgets::{Activate, Button};
 
-use crate::ui::types::SmoothButtonAnimation;
+use crate::ui::hotbar::ToolBarItem;
+use crate::ui::types::{PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation};
 
 pub fn grid() -> impl Scene {
     bsn! {
-        // Unrepresentable CSS: 'transform:' (2D matrix transforms require a separate Transform component)
-        // Unrepresentable CSS: 'transition:' (CSS transitions require Bevy tweening systems)
         Node {
             display: Display::Flex,
             position_type: PositionType::Absolute,
@@ -16,9 +15,11 @@ pub fn grid() -> impl Scene {
             flex_direction: FlexDirection::Row,
             align_items: AlignItems::Center,
         }
+        UiTransform::default()
+        SlidePanel::new("grid".into())
         ZIndex(10)
         Children [
-            Button
+            Button //Popout Button Need to Implement
             Node {
                 width: px(24.0),
                 height: px(50.0),
@@ -35,6 +36,19 @@ pub fn grid() -> impl Scene {
             BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
             TextColor(Color::srgb(0.220, 0.741, 0.973))
             TextFont { font_size: FontSize::Px(11.) }
+            PopoutButton("grid")
+            on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
+                if let Ok(popout) = popouts.get(event.entity) {
+                    for mut slide_panel in slide_panels.iter_mut(){
+                        if slide_panel.name == popout.0{
+                            slide_panel.state = match slide_panel.state{
+                                PanelState::Open => PanelState::Closed,
+                                PanelState::Closed => PanelState::Open
+                            }
+                        }
+                    }
+                }
+            })
             Children [
                 Text::new(">")
             ]
@@ -129,6 +143,9 @@ fn grid_item(n: usize) -> impl Scene {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
             }
+            ToolBarItem(None)
+            Visibility::Hidden
+
             Children [
                 // Unrepresentable CSS: 'filter:' (CSS blur/filters are not supported on Bevy UI nodes)
                 Node::default()

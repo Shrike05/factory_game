@@ -124,7 +124,7 @@ pub fn toolbar_item(n: usize) -> impl Scene {
 }
 
 #[derive(Component, Clone, Copy, Default)]
-pub struct ToolBarItem(Option<FactoryType>);
+pub struct ToolBarItem(pub Option<FactoryType>);
 
 pub fn tool_bar_item_update(
     mut tool_bar_item_query: Query<(&mut Visibility, &ToolBarItem), Changed<ToolBarItem>>,
