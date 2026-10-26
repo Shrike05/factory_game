@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::ui::hotbar::tool_bar;
+use crate::ui::{hotbar::tool_bar, tool_grid::grid};
 
 pub fn root_ui() -> impl Scene {
     bsn! {
@@ -24,6 +24,8 @@ pub fn root_ui() -> impl Scene {
         }
         TextColor(Color::srgb(0.902, 0.929, 0.953))
         Children[
+            @grid()
+            --
             Node{
                 width: percent(100.),
                 flex_direction: FlexDirection::Row,
@@ -31,7 +33,6 @@ pub fn root_ui() -> impl Scene {
                 align_items: AlignItems::End,
             }
             Children[@tool_bar()]
-
         ]
     }
 }

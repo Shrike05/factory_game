@@ -33,14 +33,14 @@ pub fn tool_bar() -> impl Scene {
         Children[
             {(0..10).map(|x|{
                 bsn! {
-                 @toolbar_button(x)
+                 @hot_item(x)
                 }
             }).collect::<Vec<_>>()}
         ]
     }
 }
 
-fn toolbar_button(n: usize) -> impl Scene {
+pub fn hot_item(n: usize) -> impl Scene {
     bsn! {
         Node {
             width: px(80.0),
