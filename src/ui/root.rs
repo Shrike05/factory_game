@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::ui::{hotbar::tool_bar, tool_grid::grid};
+use crate::ui::{hotbar::tool_bar, info_panel::info_panel, tool_grid::grid};
 
 pub fn root_ui() -> impl Scene {
     bsn! {
@@ -24,6 +24,8 @@ pub fn root_ui() -> impl Scene {
         }
         TextColor(Color::srgb(0.902, 0.929, 0.953))
         Children[
+            @info_panel()
+            --
             @grid()
             --
             Node{

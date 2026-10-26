@@ -1,0 +1,131 @@
+use bevy::prelude::*;
+use bevy::ui_widgets::Button;
+
+pub fn info_panel() -> impl Scene {
+    bsn! {
+        // Unrepresentable CSS: 'transition:' (CSS transitions require Bevy tweening systems)
+        Node {
+            display: Display::Flex,
+            position_type: PositionType::Absolute,
+            left: px(0.0),
+            top: px(20.0),
+            flex_direction: FlexDirection::Row,
+            align_items: AlignItems::FlexStart,
+        }
+        ZIndex(10)
+        Children [
+            // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
+            // Unrepresentable CSS: 'backdrop-filter:' (Backdrop filters are not supported in Bevy UI)
+            Node {
+                min_width: px(200.0),
+                display: Display::Flex,
+                flex_direction: FlexDirection::Column,
+                padding: UiRect {
+                    left: px(16.0),
+                    right: px(16.0),
+                    top: px(16.0),
+                    bottom: px(16.0),
+                },
+                border: UiRect {
+                    left: px(2.0),
+                    right: px(2.0),
+                    top: px(2.0),
+                    bottom: px(2.0),
+                },
+            }
+            BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
+            BackgroundColor(Color::BLACK)
+            Children [
+                Node {
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    margin: UiRect {
+                        left: px(0.0),
+                        right: px(0.0),
+                        top: px(0.0),
+                        bottom: px(12.0),
+                    },
+                }
+                TextColor(Color::srgb(0.220, 0.741, 0.973))
+                TextFont { font_size: FontSize::Px(14.0)}
+                Children [
+                    Text::new("Inventory Status")
+                ]
+                --
+                Node {
+                    display: Display::Flex,
+                    flex_direction: FlexDirection::Column,
+                    padding: UiRect {
+                        left: px(0.0),
+                        right: px(0.0),
+                        top: px(0.0),
+                        bottom: px(0.0),
+                    },
+                    margin: UiRect {
+                        left: px(0.0),
+                        right: px(0.0),
+                        top: px(0.0),
+                        bottom: px(0.0),
+                    },
+                }
+                TextColor(Color::srgb(0.796, 0.835, 0.882))
+                TextFont { font_size: FontSize::Px(13.0)}
+                Children[
+                  {(0..10).map(|x|{
+                      bsn! {
+                          @info_item(format!("F{x}"), x as u64)
+                      }
+                  }).collect::<Vec<_>>()}
+                ]
+            ]
+            --
+            Button
+            // Unrepresentable CSS: 'cursor:' (Cursor styling is managed at the Window level or via custom interaction plugins)
+            // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
+            Node {
+                width: px(24.0),
+                height: percent(100.0),
+                display: Display::Flex,
+                justify_content: JustifyContent::Center,
+                align_items: AlignItems::Center,
+            }
+            Children [
+                Node{
+                    width: percent(100.),
+                    border: UiRect {
+                        left: px(2.0),
+                        right: px(2.0),
+                        top: px(2.0),
+                        bottom: px(2.0),
+                    },
+                }
+                TextFont { font_size: FontSize::Px(20.0)}
+                BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
+                Text::new("<")
+            ]
+        ]
+    }
+}
+
+fn info_item(label: String, amount: u64) -> impl Scene {
+    bsn! {
+        Node {
+            display: Display::Flex,
+            flex_direction: FlexDirection::Row,
+            justify_content: JustifyContent::SpaceBetween,
+        }
+        Children [
+            Node::default()
+            TextColor(Color::srgb(0.580, 0.639, 0.722))
+            Children [
+                Text::new(format!("{label}:"))
+            ]
+            --
+            Node::default()
+            TextColor(Color::srgb(0.973, 0.980, 0.988))
+            Children [
+                Text::new(format!("{amount}"))
+            ]
+        ]
+    }
+}
