@@ -5,5 +5,5 @@ mod settings;
 mod skill_tree;
 mod types;
 
-pub use detail_root::detail_root_ui;
+pub use detail_root::*;
 use types::*;

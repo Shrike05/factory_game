@@ -14,7 +14,7 @@ pub fn update_button_hover_styles(
         // Update targets based on hover state
         if hovered.get() {
             anim.target_scale = 1.1;
-            anim.target_y = -6.0; // Hover up distance
+            anim.target_y = 6.0 * if anim.animate_up { -1. } else { 1. }; // Hover up distance
         } else {
             anim.target_scale = 1.0;
             anim.target_y = 0.0;

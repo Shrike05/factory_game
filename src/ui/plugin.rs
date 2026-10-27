@@ -1,11 +1,15 @@
 use crate::factory::FactoryType;
-use crate::ui::hotbar::tool_bar_item_update;
-use crate::ui::info_panel::update_info_items;
+use crate::ui::game::hotbar::tool_bar;
+use crate::ui::game::hotbar::tool_bar_item_update;
+use crate::ui::game::info_panel::update_info_items;
+use crate::ui::root::root_ui;
 use crate::ui::systems::{
     slide_panel_animation, update_button_flashes, update_button_hover_styles,
     update_drag_ghost_position,
 };
-use crate::ui::{hotbar::tool_bar, root::root_ui};
+use crate::ui::ui_state::UiState;
+use crate::ui::ui_state::enter_menu_state;
+use crate::ui::ui_state::exit_menu_state;
 use bevy::{
     picking::hover::Hovered,
     prelude::*,
@@ -30,5 +34,8 @@ impl Plugin for UiPlugin {
         );
         app.add_systems(Update, tool_bar_item_update);
         app.add_systems(Update, update_info_items);
+        app.add_systems(OnEnter(UiState::MenuView), enter_menu_state);
+        app.add_systems(OnExit(UiState::MenuView), exit_menu_state);
+        app.init_state::<UiState>();
     }
 }

@@ -1,4 +1,4 @@
-use bevy::{log::LogPlugin, prelude::*};
+use bevy::{app::HierarchyPropagatePlugin, log::LogPlugin, prelude::*};
 #[cfg(feature = "dev_tools")]
 use bevy_devtools::*;
 
@@ -28,6 +28,7 @@ fn main() {
         MeshPickingPlugin,
         preview::PreviewPlugin,
         ui::UiPlugin,
+        HierarchyPropagatePlugin::<Pickable>::new(Startup),
     ))
     .init_state::<states::BuildSelection>();
 

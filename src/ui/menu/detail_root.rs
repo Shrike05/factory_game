@@ -10,11 +10,14 @@ pub fn detail_root_ui() -> impl Scene {
             Node{
                 position_type: PositionType::Absolute,
                 width: percent(96.),
-                height: percent(96.),
+                height: percent(93.),
                 left: percent(2.),
-                top: percent(3.),
+                top: px(60.),
             }
             BackgroundColor(Color::BLACK)
+            Pickable::IGNORE
+            Visibility::Hidden
+            DetailRoot
             Children[
     //        @inventory_ui(InventoryUiData{
     //            items_telemetry: vec![
@@ -67,3 +70,6 @@ pub fn detail_root_ui() -> impl Scene {
             ]
         }
 }
+
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct DetailRoot;

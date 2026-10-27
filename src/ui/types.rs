@@ -16,6 +16,7 @@ pub struct SmoothButtonAnimation {
     pub target_scale: f32,
     pub current_y: f32,
     pub target_y: f32,
+    pub animate_up: bool,
 }
 
 impl Default for SmoothButtonAnimation {
@@ -25,6 +26,19 @@ impl Default for SmoothButtonAnimation {
             target_scale: 1.0,
             current_y: 0.0,
             target_y: 0.0,
+            animate_up: true,
+        }
+    }
+}
+
+impl SmoothButtonAnimation {
+    pub fn animate_down() -> Self {
+        Self {
+            current_scale: 1.0,
+            target_scale: 1.0,
+            current_y: 0.0,
+            target_y: 0.0,
+            animate_up: false,
         }
     }
 }

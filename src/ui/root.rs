@@ -1,9 +1,7 @@
 use bevy::prelude::*;
 
-use crate::ui::{
-    hotbar::tool_bar, info_panel::info_panel, menu::detail_root_ui, tool_grid::grid,
-    top_bar::top_bar,
-};
+use crate::ui::game::*;
+use crate::ui::{menu::detail_root_ui, top_bar::top_bar};
 
 pub fn root_ui() -> impl Scene {
     bsn! {
