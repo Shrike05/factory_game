@@ -28,9 +28,9 @@ pub fn top_bar() -> impl Scene {
         Children[
             @top_button("Inventory".into())
             --
-            @top_button("Settings".into())
+            @top_button("Skill Tree".into())
             --
-            @top_button("Menu".into())
+            @top_button("Settings".into())
             --
         ]
     }

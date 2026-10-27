@@ -1,5 +1,6 @@
 mod hotbar;
 mod info_panel;
+mod menu;
 mod plugin;
 mod root;
 mod systems;

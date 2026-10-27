@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 
-use crate::ui::{hotbar::tool_bar, info_panel::info_panel, tool_grid::grid, top_bar::top_bar};
+use crate::ui::{
+    hotbar::tool_bar, info_panel::info_panel, menu::detail_root_ui, tool_grid::grid,
+    top_bar::top_bar,
+};
 
 pub fn root_ui() -> impl Scene {
     bsn! {
-        // Unrepresentable CSS: 'user-select:' (User text selection cannot be configured via Bevy Node)
         Pickable::IGNORE
         Node {
             width: Val::Vw(100.0),
@@ -49,6 +51,8 @@ pub fn root_ui() -> impl Scene {
             }
             Pickable::IGNORE
             Children[@tool_bar()]
+            --
+            @detail_root_ui()
         ]
     }
 }
