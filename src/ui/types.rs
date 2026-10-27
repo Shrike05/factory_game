@@ -6,6 +6,9 @@ use bevy::prelude::*;
 #[derive(Component, Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub struct PaletteItem(pub FactoryType);
 
+#[derive(Component, Clone, Default)]
+pub struct DragGhost;
+
 /// Component to track smooth hover interpolation
 #[derive(Component, Clone)]
 pub struct SmoothButtonAnimation {

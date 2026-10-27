@@ -89,15 +89,10 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             mut toolbar_query: Query<&mut ToolBarItem>,
             children_query: Query<&Children>| {
             // Check if the dragged entity has a PaletteItem
-            if let Ok(palette) = palette_query.get(event.dropped) {
-                // Assign to slot button (searches self or child button)
-                if let Ok(mut item) = toolbar_query.get_mut(event.entity) {
-                    item.0 = Some(palette.0);
-                } else if let Ok(children) = children_query.get(event.entity) {
-                    for child in children.iter() {
-                        if let Ok(mut item) = toolbar_query.get_mut(child) {
-                            item.0 = Some(palette.0);
-                        }
+            if let Ok(palette) = palette_query.get(event.dropped) && let Ok(children) = children_query.get(event.entity){
+                for child in children.iter() {
+                    if let Ok(mut item) = toolbar_query.get_mut(child) {
+                        item.0 = Some(palette.0);
                     }
                 }
             }

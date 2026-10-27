@@ -8,7 +8,7 @@ use std::collections::HashMap;
 #[derive(Default, Clone, Copy, Debug, PartialEq, Eq, Hash, ValueEnum)]
 pub enum FactoryType {
     #[default]
-    Empty,
+    Smelter,
     Sink,
     Source,
 }
@@ -30,7 +30,7 @@ pub struct Factory {
 impl Factory {
     pub fn new(origin: GridPos, factory_type: FactoryType) -> Factory {
         let (input, output) = match factory_type {
-            FactoryType::Empty => (vec![(Item::Rock, 2.)], vec![(Item::Iron, 1.)]),
+            FactoryType::Smelter => (vec![(Item::Rock, 2.)], vec![(Item::Iron, 1.)]),
             FactoryType::Source => (vec![], vec![]),
             FactoryType::Sink => (vec![], vec![]),
         };

@@ -3,7 +3,9 @@ use bevy::prelude::*;
 use bevy::ui_widgets::{Activate, Button};
 
 use crate::factory::FactoryType;
-use crate::ui::types::{PaletteItem, PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation};
+use crate::ui::types::{
+    DragGhost, PaletteItem, PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation,
+};
 
 pub fn grid() -> impl Scene {
     bsn! {
@@ -104,7 +106,7 @@ pub fn grid() -> impl Scene {
 /// Map grid index to a FactoryType variant
 fn factory_for_index(n: usize) -> FactoryType {
     match n {
-        0 => FactoryType::Empty,
+        0 => FactoryType::Smelter,
         1 => FactoryType::Sink,
         _ => FactoryType::Source, // Adjust to match your FactoryType enum variants
     }
@@ -133,6 +135,49 @@ fn grid_item(n: usize) -> impl Scene {
             translation: Val2::px(0., 0.)
         }
         BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
+        // Spawn mouse-following ghost on drag start
+        on(move |event: On<PointerDragStart>, mut commands: Commands, windows: Single<&Window>| {
+            let cursor_pos_opt = windows.cursor_position();
+            if cursor_pos_opt.is_none(){
+                return;
+            }
+
+            let cursor_pos: Vec2 = cursor_pos_opt.unwrap();
+
+            let x = cursor_pos.x - 35.;
+            let y = cursor_pos.y - 35.;
+
+            commands.spawn_scene(bsn!{
+                DragGhost
+                Pickable::IGNORE
+                ZIndex(100)
+                Node {
+                    position_type: PositionType::Absolute,
+                    left: Val::Px(x),
+                    top: Val::Px(y),
+                    width: Val::Px(70.0),
+                    height: Val::Px(70.0),
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    border: UiRect::all(Val::Px(2.0)),
+                }
+                BorderColor::all(Color::srgb(0.220, 0.741, 0.973))
+                BackgroundColor(Color::srgba(0.05, 0.1, 0.2, 0.85))
+                Children[
+                    Pickable::IGNORE
+                    Text::new(format!("{factory:?}"))
+                    TextFont { font_size: FontSize::Px(18.0) }
+                    TextColor(Color::srgb(0.220, 0.741, 0.973))
+                ]
+            });
+        })
+
+        // Clean up ghost on drag end if dropped outside
+        on(|_event: On<PointerDragEnd>, mut commands: Commands, ghosts: Query<Entity, With<DragGhost>>| {
+            for ghost in ghosts.iter() {
+                commands.entity(ghost).despawn();
+            }
+        })
         Children [
             Node {
                 width: percent(100.0),

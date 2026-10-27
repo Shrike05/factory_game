@@ -67,3 +67,18 @@ pub fn slide_panel_animation(time: Res<Time>, mut query: Query<(&SlidePanel, &mu
         }
     }
 }
+
+pub fn update_drag_ghost_position(
+    windows: Query<&Window>,
+    mut ghost_query: Query<&mut Node, With<DragGhost>>,
+) {
+    let Ok(window) = windows.single() else {
+        return;
+    };
+    if let Some(cursor_pos) = window.cursor_position() {
+        for mut node in ghost_query.iter_mut() {
+            node.left = Val::Px(cursor_pos.x - 35.0);
+            node.top = Val::Px(cursor_pos.y - 35.0);
+        }
+    }
+}

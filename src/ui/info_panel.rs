@@ -90,7 +90,7 @@ pub fn info_panel() -> impl Scene {
             // Unrepresentable CSS: 'box-shadow:' (Bevy 2D UI lacks built-in drop shadows; requires custom mesh or shader)
             Node {
                 width: px(24.0),
-                height: px(100.0),
+                height: px(50.0),
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,

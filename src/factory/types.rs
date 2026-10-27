@@ -31,7 +31,7 @@ impl FactoryMap {
     pub fn init_factory_map() -> FactoryMap {
         let mut factory_map = HashMap::new();
         factory_map.insert(
-            FactoryType::Empty,
+            FactoryType::Smelter,
             vec![GridPos::new(0, 0)].into_boxed_slice(),
         );
 

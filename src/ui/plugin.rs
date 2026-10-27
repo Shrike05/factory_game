@@ -3,6 +3,7 @@ use crate::ui::hotbar::tool_bar_item_update;
 use crate::ui::info_panel::update_info_items;
 use crate::ui::systems::{
     slide_panel_animation, update_button_flashes, update_button_hover_styles,
+    update_drag_ghost_position,
 };
 use crate::ui::{hotbar::tool_bar, root::root_ui};
 use bevy::{
@@ -24,6 +25,7 @@ impl Plugin for UiPlugin {
                 update_button_hover_styles,
                 update_button_flashes,
                 slide_panel_animation,
+                update_drag_ghost_position,
             ),
         );
         app.add_systems(Update, tool_bar_item_update);
