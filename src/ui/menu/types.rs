@@ -8,6 +8,7 @@ pub struct ItemTelemetry {
     pub rate: String,
     pub min_yield: String,
     pub max_yield: String,
+    pub plot_values: Vec<f32>,
 }
 
 #[derive(Clone, Debug)]

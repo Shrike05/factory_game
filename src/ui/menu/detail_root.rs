@@ -23,7 +23,8 @@ pub fn detail_root_ui() -> impl Scene {
                     current_yield: "0".into(),
                     rate: "0".into(),
                     min_yield: "0".into(),
-                    max_yield: "10".into()
+                    max_yield: "10".into(),
+                    plot_values: (0..50).into_iter().map(|x| (x*x) as f32).collect()
                 },
                 ItemTelemetry{
                     title: "Iron".into(),
@@ -31,7 +32,8 @@ pub fn detail_root_ui() -> impl Scene {
                     current_yield: "0".into(),
                     rate: "0".into(),
                     min_yield: "0".into(),
-                    max_yield: "10".into()
+                    max_yield: "10".into(),
+                    plot_values: (1..50).into_iter().map(|x| (x as f32).ln()).collect()
                 }
             ],
             items_manifest: vec![

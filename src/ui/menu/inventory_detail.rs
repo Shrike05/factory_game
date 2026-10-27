@@ -1,3 +1,4 @@
+use crate::ui::menu::graph_plot::graph_plot_surface;
 use crate::ui::menu::types::*;
 use bevy::prelude::*;
 use bevy::ui_widgets::Button;
@@ -268,29 +269,7 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                     Text::new(item.min_yield.clone())
                 ]
                 --
-                // Graph Line
-                Node {
-                    display: Display::Flex,
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::SpaceBetween,
-                    flex_grow: 1.0,
-                    padding: UiRect::all(px(4.0)),
-                    border: UiRect::all(px(1.0)),
-                }
-                BorderColor::all(Color::srgb(0.133, 0.133, 0.133))
-                Children [
-                    Node {
-                        width: percent(100.0),
-                        height: px(1.0),
-                    }
-                    BackgroundColor(Color::srgb(0.067, 0.067, 0.067))
-                    --
-                    Node {
-                        width: percent(100.0),
-                        height: px(2.0),
-                    }
-                    BackgroundColor(Color::WHITE)
-                ]
+                @graph_plot_surface(item.plot_values.as_slice())
             ]
             --
             // Card Footer

@@ -1,4 +1,5 @@
 mod detail_root;
+mod graph_plot;
 mod inventory_detail;
 mod settings;
 mod skill_tree;
