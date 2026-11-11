@@ -97,24 +97,33 @@ pub fn detail_root_ui() -> impl Scene {
     bsn! {
         Node{
             position_type: PositionType::Absolute,
-            width: percent(96.),
-            height: percent(93.),
-            left: percent(2.),
-            top: px(60.),
+            width: percent(100.),
+            height: percent(100.),
         }
-        BackgroundColor(Color::BLACK)
+        BackgroundColor(Color::Srgba(Srgba { red: 0., green: 0., blue: 0., alpha: 0.6 }))
         Pickable::IGNORE
         Visibility::Hidden
         DetailRoot
         Children[
-            @inventory_ui(inventory_data)
-            InventoryTab
-            --
-            @skill_tree_ui(skill_tree_data)
-            SkillTreeTab
-            --
-            @settings_ui(settings_data)
-            SettingsTab
+            Node{
+                position_type: PositionType::Absolute,
+                width: percent(96.),
+                height: percent(93.),
+                left: percent(2.),
+                top: px(60.),
+            }
+            Pickable::IGNORE
+            BackgroundColor(Color::BLACK)
+            Children[
+                @inventory_ui(inventory_data)
+                InventoryTab
+                --
+                @skill_tree_ui(skill_tree_data)
+                SkillTreeTab
+                --
+                @settings_ui(settings_data)
+                SettingsTab
+            ]
         ]
     }
 }

@@ -34,10 +34,13 @@ pub fn root_ui() -> impl Scene {
             }
             Pickable::IGNORE
             Children[@top_bar()]
+            ZIndex(10)
             --
             @info_panel()
+            ZIndex(6)
             --
             @grid()
+            ZIndex(6)
             --
             Node{
                 width: percent(100.),
@@ -48,9 +51,11 @@ pub fn root_ui() -> impl Scene {
                 align_items: AlignItems::End,
             }
             Pickable::IGNORE
+            ZIndex(4)
             Children[@tool_bar()]
             --
             @detail_root_ui()
+            ZIndex(5)
         ]
     }
 }
