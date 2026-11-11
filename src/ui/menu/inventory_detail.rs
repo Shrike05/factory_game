@@ -1,6 +1,10 @@
 use crate::ui::menu::graph_plot::graph_plot_surface;
 use crate::ui::menu::types::*;
+use crate::ui::types::*;
+use bevy::feathers::font_styles::InheritableFont;
+use bevy::feathers::theme::ThemedText;
 use bevy::prelude::*;
+use bevy::text::FontSourceTemplate;
 use bevy::ui_widgets::Button;
 
 pub fn inventory_ui(data: InventoryUiData) -> impl Scene {
@@ -25,8 +29,8 @@ pub fn inventory_ui(data: InventoryUiData) -> impl Scene {
                     bottom: px(0.0),
                 },
             }
-            BackgroundColor(Color::srgb(0.008, 0.008, 0.008))
-            BorderColor::all(Color::srgb(0.133, 0.133, 0.133))
+            BackgroundColor(PRIMARY_BASE)
+            BorderColor::all(BORDER_COLOR)
             Children [
                 Node {
                     width: percent(100.0),
@@ -38,16 +42,21 @@ pub fn inventory_ui(data: InventoryUiData) -> impl Scene {
                     padding: UiRect {
                         left: px(12.0),
                         right: px(12.0),
-                        top: px(0.0),
-                        bottom: px(0.0),
+                        top: px(10.0),
+                        bottom: px(5.0),
                     },
+                    border: UiRect::bottom(Val::Px(1.))
                 }
+                BorderColor::all(SECONDARY_BORDER_COLOR)
                 BackgroundColor(Color::srgb(0.039, 0.039, 0.039))
                 Children [
                     Node::default()
                     Children [
-                        TextColor(Color::WHITE)
-                        TextFont { font_size: FontSize::Px(12.0) }
+                        TextColor(FONT_COLOR)
+                        TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                            font_size: FontSize::Px(HEADING1_FONT_SIZE)}
+                        ThemedText
                         Text::new("Inventory")
                     ]
                 ]
@@ -98,8 +107,8 @@ pub fn item_manifest_row(entry: ItemManifestEntry) -> impl Scene {
                 bottom: px(1.0),
             },
         }
-        BackgroundColor(Color::srgb(0.031, 0.031, 0.031))
-        BorderColor::all(Color::srgb(0.102, 0.102, 0.102))
+        BackgroundColor(SECONDARY_BASE)
+        BorderColor::all(SECONDARY_BORDER_COLOR)
         Children [
             Node {
                 display: Display::Flex,
@@ -108,24 +117,36 @@ pub fn item_manifest_row(entry: ItemManifestEntry) -> impl Scene {
             Children [
                 Node::default()
                 Children [
-                    TextColor(Color::WHITE)
-                    TextFont { font_size: FontSize::Px(11.0) }
+                    TextColor(FONT_COLOR)
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(HEADING3_FONT_SIZE)
+                    }
+                    ThemedText
                     Text::new(entry.name.clone())
                 ]
                 --
                 Node::default()
                 Children [
-                    TextColor(Color::srgb(0.333, 0.333, 0.333))
-                    TextFont { font_size: FontSize::Px(9.0) }
+                    TextColor(SECONDARY_FONT_COLOR)
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE)
+                    }
                     Text::new(entry.category)
+                    ThemedText
                 ]
             ]
             --
             Node::default()
             Children [
-                TextColor(Color::WHITE)
-                TextFont { font_size: FontSize::Px(11.0) }
+                TextColor(FONT_COLOR)
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(HEADING3_FONT_SIZE)
+                }
                 Text::new(entry.exact_qty.clone())
+                    ThemedText
             ]
         ]
     }
@@ -140,7 +161,7 @@ pub fn items_list_ui(entries: Vec<ItemManifestEntry>) -> impl Scene {
             display: Display::Flex,
             flex_direction: FlexDirection::Column,
         }
-        BackgroundColor(Color::srgb(0.02, 0.02, 0.02))
+        BackgroundColor(PRIMARY_BASE)
         Children [
             // Title Header
             Node {
@@ -153,17 +174,27 @@ pub fn items_list_ui(entries: Vec<ItemManifestEntry>) -> impl Scene {
                 padding: UiRect {
                     left: px(12.0),
                     right: px(12.0),
-                    top: px(0.0),
-                    bottom: px(0.0),
+                    top: px(10.0),
+                    bottom: px(5.0),
                 },
+                border: UiRect {
+                    left: px(0.0),
+                    right: px(0.0),
+                    top: px(0.0),
+                    bottom: px(1.0),
+                }
             }
-            BackgroundColor(Color::srgb(0.039, 0.039, 0.039))
+            BorderColor::all(SECONDARY_BORDER_COLOR)
+            BackgroundColor(SECONDARY_BASE)
             Children [
                 Node::default()
                 Children [
                     TextColor(Color::WHITE)
-                    TextFont { font_size: FontSize::Px(12.0) }
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(HEADING2_FONT_SIZE) }
                     Text::new("ITEMS")
+                    ThemedText
                 ]
             ]
             --
@@ -219,8 +250,11 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                 Node::default()
                 Children [
                 TextColor(Color::WHITE)
-                TextFont { font_size: FontSize::Px(12.0) }
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(HEADING3_FONT_SIZE) }
                     Text::new(item.title.clone())
+                    ThemedText
                 ]
                 --
                 Node {
@@ -236,8 +270,11 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                 BorderColor::all(Color::srgb(0.267, 0.267, 0.267))
                 Children [
                 TextColor(Color::WHITE)
-                TextFont { font_size: FontSize::Px(10.0) }
+                TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.growth_rate.clone())
+                    ThemedText
                 ]
             ]
             --
@@ -261,12 +298,18 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                 }
                 Children [
                 TextColor(Color::srgb(0.333, 0.333, 0.333))
-                TextFont { font_size: FontSize::Px(9.0) }
+                TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.max_yield.clone())
+                    ThemedText
                     --
                 TextColor(Color::srgb(0.333, 0.333, 0.333))
-                TextFont { font_size: FontSize::Px(9.0) }
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.min_yield.clone())
+                    ThemedText
                 ]
                 --
                 @graph_plot_surface(item.plot_values.as_slice())
@@ -289,22 +332,31 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                 Node::default()
                 Children [
                     TextColor(Color::srgb(0.4, 0.4, 0.4))
-                    TextFont { font_size: FontSize::Px(10.0) }
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new("CURRENT:")
+                    ThemedText
                 ]
                 --
                 Node::default()
                 Children [
                     TextColor(Color::WHITE)
-                    TextFont { font_size: FontSize::Px(10.0) }
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.current_yield.clone())
+                    ThemedText
                 ]
                 --
                 Node::default()
                 Children [
                     TextColor(Color::srgb(0.533, 0.533, 0.533))
-                    TextFont { font_size: FontSize::Px(10.0) }
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.rate.clone())
+                    ThemedText
                 ]
             ]
         ]

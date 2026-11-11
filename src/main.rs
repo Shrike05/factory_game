@@ -1,4 +1,4 @@
-use bevy::{app::HierarchyPropagatePlugin, log::LogPlugin, prelude::*};
+use bevy::{app::HierarchyPropagatePlugin, feathers::FeathersPlugins, log::LogPlugin, prelude::*};
 #[cfg(feature = "dev_tools")]
 use bevy_devtools::*;
 
@@ -21,6 +21,7 @@ fn main() {
 
     app.add_plugins((
         DefaultPlugins.build().disable::<LogPlugin>(),
+        FeathersPlugins,
         factory::FactoryPlugin,
         camera::CameraPlugin,
         road::RoadPlugin,

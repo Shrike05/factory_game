@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-bevy = { version= "0.20.0", features = ["bevy_picking"] }
+bevy = { version= "0.20.0", features = ["bevy_picking", "bevy_feathers"] }
 bitmaps = "3.2.1"
 bevy_devtools = { git = "https://github.com/Shrike05/bevy_devtools.git", optional = true, tag = "0.2.01" }
 regex = "1.12.3"

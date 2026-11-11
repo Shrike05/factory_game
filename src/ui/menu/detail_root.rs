@@ -5,6 +5,7 @@ use crate::ui::menu::inventory_detail::inventory_ui;
 use crate::ui::menu::settings::settings_ui;
 use crate::ui::menu::skill_tree::{skill_detail_view, skill_tree_ui};
 use crate::ui::menu::types::*;
+use crate::ui::types::*;
 use crate::ui::ui_state::{MenuState, UiState};
 
 pub fn detail_root_ui() -> impl Scene {
@@ -68,11 +69,18 @@ pub fn detail_root_ui() -> impl Scene {
                 plot_values: (1..50).into_iter().map(|x| (x as f32).ln()).collect(),
             },
         ],
-        items_manifest: vec![ItemManifestEntry {
-            name: "Rock".into(),
-            category: "Mineral".into(),
-            exact_qty: "10".into(),
-        }],
+        items_manifest: vec![
+            ItemManifestEntry {
+                name: "Rock".into(),
+                category: "Mineral".into(),
+                exact_qty: "10".into(),
+            },
+            ItemManifestEntry {
+                name: "Iron".into(),
+                category: "Mineral".into(),
+                exact_qty: "0".into(),
+            },
+        ],
     };
 
     let settings_data = SettingsUiData {
@@ -94,13 +102,15 @@ pub fn detail_root_ui() -> impl Scene {
             ],
         }],
     };
+
+    let bg = PRIMARY_BASE.with_alpha(0.6);
     bsn! {
         Node{
             position_type: PositionType::Absolute,
             width: percent(100.),
             height: percent(100.),
         }
-        BackgroundColor(Color::Srgba(Srgba { red: 0., green: 0., blue: 0., alpha: 0.6 }))
+        BackgroundColor(bg)
         Pickable::IGNORE
         Visibility::Hidden
         DetailRoot
@@ -111,9 +121,11 @@ pub fn detail_root_ui() -> impl Scene {
                 height: percent(93.),
                 left: percent(2.),
                 top: px(60.),
+                border: UiRect::all(Val::Px(1.))
             }
+            BorderColor::all(BORDER_COLOR)
             Pickable::IGNORE
-            BackgroundColor(Color::BLACK)
+            BackgroundColor(PRIMARY_BASE)
             Children[
                 @inventory_ui(inventory_data)
                 InventoryTab

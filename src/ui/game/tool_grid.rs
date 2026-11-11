@@ -4,7 +4,8 @@ use bevy::ui_widgets::{Activate, Button};
 
 use crate::factory::FactoryType;
 use crate::ui::types::{
-    DragGhost, PaletteItem, PanelState, PopoutButton, SlidePanel, SmoothButtonAnimation,
+    DragGhost, HEADING1_FONT_SIZE, PaletteItem, PanelState, PopoutButton, SlidePanel,
+    SmoothButtonAnimation,
 };
 
 pub fn grid() -> impl Scene {
@@ -78,9 +79,9 @@ pub fn grid() -> impl Scene {
                         bottom: px(12.0),
                     },
                 }
-                TextColor(Color::srgb(0.220, 0.741, 0.973))
-                TextFont { font_size: FontSize::Px(14.) }
                 Children [
+                    TextColor(Color::srgb(0.220, 0.741, 0.973))
+                    TextFont { font_size: FontSize::Px(HEADING1_FONT_SIZE) }
                     Text::new("Factories")
                 ]
                 -- // Actual Grid (4x4 static palette)

@@ -1,12 +1,13 @@
 use bevy::{
+    feathers::theme::ThemedText,
     picking::hover::Hovered,
     prelude::*,
     ui_widgets::{Activate, Button},
 };
 
-use crate::factory::FactoryType;
 use crate::states::BuildSelection;
 use crate::ui::types::{PaletteItem, SmoothButtonAnimation};
+use crate::{factory::FactoryType, ui::types::SMALL_FONT_SIZE};
 
 pub fn tool_bar() -> impl Scene {
     bsn! {
@@ -54,11 +55,14 @@ pub fn tool_bar() -> impl Scene {
                     justify_content: JustifyContent::Center,
                 }
                 BackgroundColor(Color::srgb(1., 0., 0.))
-                TextFont { font_size: FontSize::Px(15.) }
                 on(|event: On<PointerClick>, mut next_state: ResMut<NextState<BuildSelection>>|{
                     next_state.set(BuildSelection::Removing);
                 })
-                Children[Text::new("T")]
+                Children[
+                    TextFont { font_size: FontSize::Px(SMALL_FONT_SIZE) }
+                    Text::new("T")
+                    ThemedText
+                ]
             ]
         ]
     }
@@ -106,6 +110,7 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             TextColor(Color::srgb(0.392, 0.455, 0.545))
             TextFont { font_size: FontSize::Px(10.) }
             Text::new(format!("{n}"))
+            ThemedText
             --
             Button
             Node {
@@ -130,6 +135,7 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             Children [
                 TextFont { font_size: FontSize::Px(22.) }
                 Text::new("")
+                ThemedText
             ]
         ]
     }

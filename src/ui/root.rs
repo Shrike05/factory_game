@@ -1,6 +1,9 @@
+use bevy::feathers::font_styles::InheritableFont;
 use bevy::prelude::*;
+use bevy::text::FontSourceTemplate;
 
 use crate::ui::game::*;
+use crate::ui::types::FONT_PATH;
 use crate::ui::{menu::detail_root_ui, top_bar::top_bar};
 
 pub fn root_ui() -> impl Scene {
