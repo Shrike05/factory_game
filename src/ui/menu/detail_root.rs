@@ -75,7 +75,25 @@ pub fn detail_root_ui() -> impl Scene {
         }],
     };
 
-    let settings_data = SettingsUiData { groups: vec![] };
+    let settings_data = SettingsUiData {
+        groups: vec![SettingsGroupData {
+            title: "Sound Settings".into(),
+            entries: vec![
+                SettingEntry {
+                    label: "Master".into(),
+                    value: "70".into(),
+                },
+                SettingEntry {
+                    label: "BGM".into(),
+                    value: "70".into(),
+                },
+                SettingEntry {
+                    label: "SE".into(),
+                    value: "70".into(),
+                },
+            ],
+        }],
+    };
     bsn! {
         Node{
             position_type: PositionType::Absolute,
