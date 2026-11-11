@@ -1,9 +1,10 @@
+use bevy::text::FontSourceTemplate;
 use bevy::ui_widgets::Button;
 use bevy::{prelude::*, ui_widgets::Activate};
 use strum::IntoEnumIterator;
 
 use crate::factory::{Item, Production};
-use crate::ui::types::{PanelState, PopoutButton, SlidePanel};
+use crate::ui::types::*;
 
 pub fn info_panel() -> impl Scene {
     bsn! {
@@ -39,7 +40,7 @@ pub fn info_panel() -> impl Scene {
                     bottom: px(2.0),
                 },
             }
-            BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
+            BorderColor::all(BORDER_COLOR)
             BackgroundColor(Color::BLACK)
             Children [
                 Node {
@@ -51,10 +52,15 @@ pub fn info_panel() -> impl Scene {
                         top: px(0.0),
                         bottom: px(12.0),
                     },
+                    border: UiRect::bottom(px(1.))
                 }
-                TextColor(Color::srgb(0.220, 0.741, 0.973))
-                TextFont { font_size: FontSize::Px(14.0)}
+                BorderColor::all(SECONDARY_BORDER_COLOR)
                 Children [
+                    TextColor(FONT_COLOR)
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(HEADING2_FONT_SIZE)
+                    }
                     Text::new("Inventory Status")
                 ]
                 --
@@ -74,8 +80,6 @@ pub fn info_panel() -> impl Scene {
                         bottom: px(0.0),
                     },
                 }
-                TextColor(Color::srgb(0.796, 0.835, 0.882))
-                TextFont { font_size: FontSize::Px(13.0)}
                 Children[
                 {
                     Item::iter().map(|item|{
@@ -94,9 +98,16 @@ pub fn info_panel() -> impl Scene {
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                border_radius: BorderRadius::right(CornerRadius::circular(Val::Px(19.)))
+                border_radius: BorderRadius::right(CornerRadius::circular(Val::Px(19.))),
+                border: UiRect{
+                    top: px(1.),
+                    left: px(0.),
+                    right: px(1.),
+                    bottom: px(1.),
+                }
             }
-            BackgroundColor(Color::BLACK)
+            BorderColor::all(BORDER_COLOR)
+            BackgroundColor(PRIMARY_BASE)
             PopoutButton("info")
             on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
                 if let Ok(popout) = popouts.get(event.entity) {
@@ -126,15 +137,25 @@ fn info_item(item: Item, amount: u64) -> impl Scene {
         }
         Children [
             Node::default()
-            TextColor(Color::srgb(0.580, 0.639, 0.722))
+            TextColor(FONT_COLOR)
             Children [
+                TextColor(FONT_COLOR)
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(HEADING3_FONT_SIZE)
+                }
                 Text::new(format!("{item:?}:"))
             ]
             --
             Node::default()
-            TextColor(Color::srgb(0.973, 0.980, 0.988))
+            TextColor(FONT_COLOR)
             Children [
                 InfoItem(item)
+                TextColor(FONT_COLOR)
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(HEADING3_FONT_SIZE)
+                }
                 Text::new(format!("{amount}"))
             ]
         ]

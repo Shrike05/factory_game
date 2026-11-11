@@ -1,12 +1,10 @@
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
+use bevy::text::FontSourceTemplate;
 use bevy::ui_widgets::{Activate, Button};
 
 use crate::factory::FactoryType;
-use crate::ui::types::{
-    DragGhost, HEADING1_FONT_SIZE, PaletteItem, PanelState, PopoutButton, SlidePanel,
-    SmoothButtonAnimation,
-};
+use crate::ui::types::*;
 
 pub fn grid() -> impl Scene {
     bsn! {
@@ -29,8 +27,15 @@ pub fn grid() -> impl Scene {
                 display: Display::Flex,
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
-                border_radius: BorderRadius::left(CornerRadius::circular(Val::Px(19.)))
+                border_radius: BorderRadius::left(CornerRadius::circular(Val::Px(19.))),
+                border: UiRect{
+                    top: px(1.),
+                    left: px(1.),
+                    right: px(0.),
+                    bottom: px(1.),
+                }
             }
+            BorderColor::all(BORDER_COLOR)
             BackgroundColor(Color::BLACK)
             PopoutButton("grid")
             on(|event: On<Activate>, mut slide_panels: Query<&mut SlidePanel>, popouts: Query<&PopoutButton>|{
@@ -65,8 +70,8 @@ pub fn grid() -> impl Scene {
                     bottom: px(2.0),
                 },
             }
-            BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
-            BackgroundColor(Color::BLACK)
+            BorderColor::all(BORDER_COLOR)
+            BackgroundColor(PRIMARY_BASE)
             Children [
                 // Text Storage Chest
                 Node {
@@ -80,8 +85,10 @@ pub fn grid() -> impl Scene {
                     },
                 }
                 Children [
-                    TextColor(Color::srgb(0.220, 0.741, 0.973))
-                    TextFont { font_size: FontSize::Px(HEADING1_FONT_SIZE) }
+                    TextColor(FONT_COLOR)
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(HEADING1_FONT_SIZE) }
                     Text::new("Factories")
                 ]
                 -- // Actual Grid (4x4 static palette)
@@ -93,7 +100,7 @@ pub fn grid() -> impl Scene {
                     column_gap: px(8.0),
                 }
                 Children[
-                    {(0..16).map(|x|{
+                    {(0..3).map(|x|{
                         bsn! {
                             @grid_item(x)
                         }
@@ -135,7 +142,7 @@ fn grid_item(n: usize) -> impl Scene {
             scale: Vec2::ONE,
             translation: Val2::px(0., 0.)
         }
-        BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
+        BorderColor::all(SECONDARY_BORDER_COLOR)
         // Spawn mouse-following ghost on drag start
         on(move |event: On<PointerDragStart>, mut commands: Commands, windows: Single<&Window>| {
             let cursor_pos_opt = windows.cursor_position();
@@ -162,13 +169,15 @@ fn grid_item(n: usize) -> impl Scene {
                     align_items: AlignItems::Center,
                     border: UiRect::all(Val::Px(2.0)),
                 }
-                BorderColor::all(Color::srgb(0.220, 0.741, 0.973))
-                BackgroundColor(Color::srgba(0.05, 0.1, 0.2, 0.85))
+                BorderColor::all(HIGHLIGHT_BORDER_COLOR)
+                BackgroundColor(SECONDARY_BASE)
                 Children[
                     Pickable::IGNORE
                     Text::new(format!("{factory:?}"))
-                    TextFont { font_size: FontSize::Px(18.0) }
-                    TextColor(Color::srgb(0.220, 0.741, 0.973))
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE) }
+                    TextColor(SECONDARY_FONT_COLOR)
                 ]
             });
         })
@@ -193,8 +202,11 @@ fn grid_item(n: usize) -> impl Scene {
             Children [
                 Node::default()
                 Pickable::IGNORE
-                TextFont { font_size: FontSize::Px(22.0) }
                 Children [
+                    TextFont {
+                        font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(HEADING2_FONT_SIZE)
+                    }
                     Pickable::IGNORE
                     Text::new(format!("{factory:?}"))
                 ]

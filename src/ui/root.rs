@@ -1,4 +1,3 @@
-use bevy::feathers::font_styles::InheritableFont;
 use bevy::prelude::*;
 use bevy::text::FontSourceTemplate;
 

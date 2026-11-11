@@ -1,12 +1,12 @@
 use bevy::{
-    feathers::theme::ThemedText,
     picking::hover::Hovered,
     prelude::*,
+    text::FontSourceTemplate,
     ui_widgets::{Activate, Button},
 };
 
 use crate::states::BuildSelection;
-use crate::ui::types::{PaletteItem, SmoothButtonAnimation};
+use crate::ui::types::*;
 use crate::{factory::FactoryType, ui::types::SMALL_FONT_SIZE};
 
 pub fn tool_bar() -> impl Scene {
@@ -29,8 +29,8 @@ pub fn tool_bar() -> impl Scene {
                 bottom: px(2.0),
             },
         }
-        BorderColor::all(Color::BLACK)
-        BackgroundColor(Color::BLACK)
+        BorderColor::all(BORDER_COLOR)
+        BackgroundColor(PRIMARY_BASE)
         Children[
             {(0..10).map(|x|{
                 bsn! {
@@ -59,9 +59,10 @@ pub fn tool_bar() -> impl Scene {
                     next_state.set(BuildSelection::Removing);
                 })
                 Children[
-                    TextFont { font_size: FontSize::Px(SMALL_FONT_SIZE) }
+                    TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                        font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new("T")
-                    ThemedText
                 ]
             ]
         ]
@@ -86,7 +87,7 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             scale: Vec2::ONE,
             translation: Val2::px(0., 0.)
         }
-        BorderColor::all(Color::srgb(0.239, 0.322, 0.471))
+        BorderColor::all(SECONDARY_BORDER_COLOR)
         // Accept drops from palette items:
         on(|event: On<PointerDragDrop>,
             palette_query: Query<&PaletteItem>,
@@ -107,10 +108,11 @@ pub fn toolbar_item(n: usize) -> impl Scene {
                 left: px(6.0),
                 top: px(4.0),
             }
-            TextColor(Color::srgb(0.392, 0.455, 0.545))
-            TextFont { font_size: FontSize::Px(10.) }
+            TextColor(FONT_COLOR)
+            TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                font_size: FontSize::Px(SMALL_FONT_SIZE) }
             Text::new(format!("{n}"))
-            ThemedText
             --
             Button
             Node {
@@ -133,9 +135,10 @@ pub fn toolbar_item(n: usize) -> impl Scene {
             ToolBarItem(None)
             Visibility::Hidden
             Children [
-                TextFont { font_size: FontSize::Px(22.) }
+                TextFont {
+                    font: FontSourceTemplate::Handle(FONT_PATH),
+                    font_size: FontSize::Px(HEADING3_FONT_SIZE) }
                 Text::new("")
-                ThemedText
             ]
         ]
     }

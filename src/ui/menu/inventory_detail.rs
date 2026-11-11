@@ -1,8 +1,6 @@
 use crate::ui::menu::graph_plot::graph_plot_surface;
 use crate::ui::menu::types::*;
 use crate::ui::types::*;
-use bevy::feathers::font_styles::InheritableFont;
-use bevy::feathers::theme::ThemedText;
 use bevy::prelude::*;
 use bevy::text::FontSourceTemplate;
 use bevy::ui_widgets::Button;
@@ -56,7 +54,6 @@ pub fn inventory_ui(data: InventoryUiData) -> impl Scene {
                         TextFont {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                             font_size: FontSize::Px(HEADING1_FONT_SIZE)}
-                        ThemedText
                         Text::new("Inventory")
                     ]
                 ]
@@ -122,7 +119,6 @@ pub fn item_manifest_row(entry: ItemManifestEntry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                         font_size: FontSize::Px(HEADING3_FONT_SIZE)
                     }
-                    ThemedText
                     Text::new(entry.name.clone())
                 ]
                 --
@@ -134,7 +130,6 @@ pub fn item_manifest_row(entry: ItemManifestEntry) -> impl Scene {
                         font_size: FontSize::Px(SMALL_FONT_SIZE)
                     }
                     Text::new(entry.category)
-                    ThemedText
                 ]
             ]
             --
@@ -146,7 +141,6 @@ pub fn item_manifest_row(entry: ItemManifestEntry) -> impl Scene {
                     font_size: FontSize::Px(HEADING3_FONT_SIZE)
                 }
                 Text::new(entry.exact_qty.clone())
-                    ThemedText
             ]
         ]
     }
@@ -194,7 +188,6 @@ pub fn items_list_ui(entries: Vec<ItemManifestEntry>) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                         font_size: FontSize::Px(HEADING2_FONT_SIZE) }
                     Text::new("ITEMS")
-                    ThemedText
                 ]
             ]
             --
@@ -254,7 +247,6 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                     font: FontSourceTemplate::Handle(FONT_PATH),
                     font_size: FontSize::Px(HEADING3_FONT_SIZE) }
                     Text::new(item.title.clone())
-                    ThemedText
                 ]
                 --
                 Node {
@@ -274,7 +266,6 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                     font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.growth_rate.clone())
-                    ThemedText
                 ]
             ]
             --
@@ -302,14 +293,12 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                     font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.max_yield.clone())
-                    ThemedText
                     --
                 TextColor(Color::srgb(0.333, 0.333, 0.333))
                 TextFont {
                     font: FontSourceTemplate::Handle(FONT_PATH),
                     font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.min_yield.clone())
-                    ThemedText
                 ]
                 --
                 @graph_plot_surface(item.plot_values.as_slice())
@@ -336,7 +325,6 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                         font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new("CURRENT:")
-                    ThemedText
                 ]
                 --
                 Node::default()
@@ -346,7 +334,6 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                         font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.current_yield.clone())
-                    ThemedText
                 ]
                 --
                 Node::default()
@@ -356,7 +343,6 @@ pub fn item_graph_card(item: ItemTelemetry) -> impl Scene {
                         font: FontSourceTemplate::Handle(FONT_PATH),
                         font_size: FontSize::Px(SMALL_FONT_SIZE) }
                     Text::new(item.rate.clone())
-                    ThemedText
                 ]
             ]
         ]

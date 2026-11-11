@@ -1,8 +1,9 @@
 use bevy::picking::hover::Hovered;
 use bevy::prelude::*;
+use bevy::text::FontSourceTemplate;
 use bevy::ui_widgets::{Activate, Button};
 
-use crate::ui::types::SmoothButtonAnimation;
+use crate::ui::types::*;
 use crate::ui::ui_state::{MenuState, UiState};
 
 pub fn top_bar() -> impl Scene {
@@ -20,14 +21,15 @@ pub fn top_bar() -> impl Scene {
                 bottom: px(5.0),
             },
             border: UiRect {
-                left: px(2.0),
-                right: px(2.0),
-                top: px(2.0),
-                bottom: px(2.0),
+                left: px(1.0),
+                right: px(1.0),
+                top: px(0.0),
+                bottom: px(1.0),
             },
+            border_radius: BorderRadius::bottom(CornerRadius::all(px(10.)))
         }
         BackgroundColor(Color::BLACK)
-        BorderColor::all(Color::srgb(0.165, 0.231, 0.361))
+        BorderColor::all(BORDER_COLOR)
         ZIndex(5)
         Children[
             @top_button("Inventory".into(), MenuState::Inventory)
@@ -35,7 +37,6 @@ pub fn top_bar() -> impl Scene {
             @top_button("Skill Tree".into(), MenuState::SkillTree)
             --
             @top_button("Settings".into(), MenuState::Settings)
-            --
         ]
     }
 }
@@ -62,10 +63,8 @@ fn top_button(name: String, menu_state: MenuState) -> impl Scene {
         Hovered::default()
         SmoothButtonAnimation::animate_down()
         UiTransform::default()
-        BorderColor::all(Color::srgb(0.200, 0.255, 0.333))
-        TextColor(Color::srgb(0.886, 0.910, 0.941))
-        TextFont { font_size: FontSize::Px(12.0)}
-        on(move |event: On<Activate>, state: Res<State<UiState>>, mut next_state: ResMut<NextState<UiState>>|{
+        BorderColor::all(SECONDARY_BORDER_COLOR)
+                on(move |event: On<Activate>, state: Res<State<UiState>>, mut next_state: ResMut<NextState<UiState>>|{
             match **state {
                 UiState::GameView => next_state.set(UiState::MenuView(menu_state)),
                 UiState::MenuView(new_state) => {
@@ -78,6 +77,11 @@ fn top_button(name: String, menu_state: MenuState) -> impl Scene {
             }
         })
         Children [
+            TextColor(FONT_COLOR)
+            TextFont {
+                font: FontSourceTemplate::Handle(FONT_PATH),
+                font_size: FontSize::Px(HEADING3_FONT_SIZE)
+            }
             Text::new(name)
         ]
     }
