@@ -4,72 +4,109 @@ use bevy::ui_widgets::Button;
 use crate::ui::menu::inventory_detail::inventory_ui;
 use crate::ui::menu::skill_tree::{skill_detail_view, skill_tree_ui};
 use crate::ui::menu::types::*;
+use crate::ui::ui_state::{MenuState, UiState};
 
 pub fn detail_root_ui() -> impl Scene {
+    let skill_tree_data = SkillTreeUiData {
+        selected_detail: SkillDetailData {
+            category_tier: "0".into(),
+            figure_caption: "Smelter Upgrade".into(),
+            title: "Smelter".into(),
+            level_status: "1".into(),
+            description: "Smelt ore into ingots".into(),
+            stats: vec!["0".to_string()],
+            prerequisite: "".into(),
+            cost_points: 100,
+            is_max_level: false,
+        },
+        nodes: vec![SkillNodeData {
+            code: "Sm".into(),
+            name: "Smelter".into(),
+            tier: 0,
+            status_text: "Locked".into(),
+            is_unlocked: false,
+            is_selected: true,
+        }],
+    };
+    let inventory_data = InventoryUiData {
+        items_telemetry: vec![
+            ItemTelemetry {
+                title: "Rock".into(),
+                growth_rate: "+10".into(),
+                current_yield: "0".into(),
+                rate: "0".into(),
+                min_yield: "0".into(),
+                max_yield: "10".into(),
+                plot_values: (0..50).into_iter().map(|x| (x * x) as f32).collect(),
+            },
+            ItemTelemetry {
+                title: "Iron".into(),
+                growth_rate: "+10".into(),
+                current_yield: "0".into(),
+                rate: "0".into(),
+                min_yield: "0".into(),
+                max_yield: "10".into(),
+                plot_values: (1..50).into_iter().map(|x| (x as f32).ln()).collect(),
+            },
+        ],
+        items_manifest: vec![ItemManifestEntry {
+            name: "Rock".into(),
+            category: "Mineral".into(),
+            exact_qty: "10".into(),
+        }],
+    };
     bsn! {
-            Node{
-                position_type: PositionType::Absolute,
-                width: percent(96.),
-                height: percent(93.),
-                left: percent(2.),
-                top: px(60.),
-            }
-            BackgroundColor(Color::BLACK)
-            Pickable::IGNORE
-            Visibility::Hidden
-            DetailRoot
-            Children[
-    //        @inventory_ui(InventoryUiData{
-    //            items_telemetry: vec![
-    //                ItemTelemetry{
-    //                    title: "Rock".into(),
-    //                    growth_rate: "+10".into(),
-    //                    current_yield: "0".into(),
-    //                    rate: "0".into(),
-    //                    min_yield: "0".into(),
-    //                    max_yield: "10".into(),
-    //                    plot_values: (0..50).into_iter().map(|x| (x*x) as f32).collect()
-    //                },
-    //                ItemTelemetry{
-    //                    title: "Iron".into(),
-    //                    growth_rate: "+10".into(),
-    //                    current_yield: "0".into(),
-    //                    rate: "0".into(),
-    //                    min_yield: "0".into(),
-    //                    max_yield: "10".into(),
-    //                    plot_values: (1..50).into_iter().map(|x| (x as f32).ln()).collect()
-    //                }
-    //            ],
-    //            items_manifest: vec![
-    //                ItemManifestEntry{
-    //                    name: "Rock".into(),
-    //                    category: "Mineral".into(),
-    //                    exact_qty: "10".into(),
-    //                }
-    //            ]
-    //        })
-                @skill_tree_ui(SkillTreeUiData { selected_detail: SkillDetailData {
-                    category_tier: "0".into(),
-                    figure_caption: "Smelter Upgrade".into(),
-                    title: "Smelter".into(),
-                    level_status: "1".into(),
-                    description: "Smelt ore into ingots".into(),
-                    stats: vec!["0".to_string()],
-                    prerequisite: "".into(),
-                    cost_points: 100,
-                    is_max_level: false
-                }, nodes: vec![SkillNodeData{
-                    code: "Sm".into(),
-                    name: "Smelter".into(),
-                    tier: 0,
-                    status_text: "Locked".into(),
-                    is_unlocked: false,
-                    is_selected: true,
-                }]
-                })
-            ]
+        Node{
+            position_type: PositionType::Absolute,
+            width: percent(96.),
+            height: percent(93.),
+            left: percent(2.),
+            top: px(60.),
         }
+        BackgroundColor(Color::BLACK)
+        Pickable::IGNORE
+        Visibility::Hidden
+        DetailRoot
+        Children[
+            @inventory_ui(inventory_data)
+            InventoryTab
+            --
+            @skill_tree_ui(skill_tree_data)
+            SkillTreeTab
+        ]
+    }
 }
 
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct DetailRoot;
+
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct InventoryTab;
+
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct SkillTreeTab;
+
+pub fn update_menu_visibility(
+    state: Res<State<UiState>>,
+    mut menus: ParamSet<(
+        Query<&mut Node, With<InventoryTab>>,
+        Query<&mut Node, With<SkillTreeTab>>,
+    )>,
+) {
+    if !state.is_changed() {
+        return;
+    }
+
+    let (inv_display, skill_display) = match state.get() {
+        UiState::MenuView(MenuState::Inventory) => (Display::Flex, Display::None),
+        UiState::MenuView(MenuState::SkillTree) => (Display::None, Display::Flex),
+        _ => (Display::None, Display::None),
+    };
+
+    for mut node in &mut menus.p0() {
+        node.display = inv_display;
+    }
+    for mut node in &mut menus.p1() {
+        node.display = skill_display;
+    }
+}

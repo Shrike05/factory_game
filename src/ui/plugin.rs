@@ -2,6 +2,7 @@ use crate::factory::FactoryType;
 use crate::ui::game::hotbar::tool_bar;
 use crate::ui::game::hotbar::tool_bar_item_update;
 use crate::ui::game::info_panel::update_info_items;
+use crate::ui::menu::update_menu_visibility;
 use crate::ui::root::root_ui;
 use crate::ui::systems::{
     slide_panel_animation, update_button_flashes, update_button_hover_styles,
@@ -23,6 +24,8 @@ pub struct UiPlugin;
 
 impl Plugin for UiPlugin {
     fn build(&self, app: &mut App) {
+        app.init_state::<UiState>()
+            .add_computed_state::<InMenuView>();
         app.add_systems(Startup, root_ui.spawn());
         app.add_systems(
             Update,
@@ -37,7 +40,6 @@ impl Plugin for UiPlugin {
         app.add_systems(Update, update_info_items);
         app.add_systems(OnEnter(InMenuView), enter_menu_state);
         app.add_systems(OnExit(InMenuView), exit_menu_state);
-        app.init_state::<UiState>()
-            .add_computed_state::<InMenuView>();
+        app.add_systems(Update, update_menu_visibility);
     }
 }

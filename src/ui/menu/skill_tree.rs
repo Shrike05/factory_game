@@ -279,7 +279,7 @@ pub fn skill_tree_canvas(nodes: &[SkillNodeData]) -> impl Scene {
                 overflow: Overflow::clip(),
             }
             Children [
-                {nodes.into_iter().map(|node| bsn!{@skill_node_view(node.clone())}).collect::<Vec<_>>()}
+                {nodes.iter().map(|node| bsn!{@skill_node_view(node.clone())}).collect::<Vec<_>>()}
             ]
         ]
     }
