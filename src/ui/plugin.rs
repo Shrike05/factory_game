@@ -7,6 +7,7 @@ use crate::ui::systems::{
     slide_panel_animation, update_button_flashes, update_button_hover_styles,
     update_drag_ghost_position,
 };
+use crate::ui::ui_state::InMenuView;
 use crate::ui::ui_state::UiState;
 use crate::ui::ui_state::enter_menu_state;
 use crate::ui::ui_state::exit_menu_state;
@@ -34,8 +35,9 @@ impl Plugin for UiPlugin {
         );
         app.add_systems(Update, tool_bar_item_update);
         app.add_systems(Update, update_info_items);
-        app.add_systems(OnEnter(UiState::MenuView), enter_menu_state);
-        app.add_systems(OnExit(UiState::MenuView), exit_menu_state);
-        app.init_state::<UiState>();
+        app.add_systems(OnEnter(InMenuView), enter_menu_state);
+        app.add_systems(OnExit(InMenuView), exit_menu_state);
+        app.init_state::<UiState>()
+            .add_computed_state::<InMenuView>();
     }
 }

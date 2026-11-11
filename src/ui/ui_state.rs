@@ -9,7 +9,14 @@ use crate::ui::{
 pub enum UiState {
     #[default]
     GameView,
-    MenuView,
+    MenuView(MenuState),
+}
+
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
+pub enum MenuState {
+    Settings,
+    Inventory,
+    SkillTree,
 }
 
 pub fn enter_menu_state(
@@ -30,5 +37,19 @@ pub fn exit_menu_state(mut detail_root: Query<(&mut Visibility, &mut Pickable), 
     for (mut vis, mut pick) in detail_root.iter_mut() {
         *vis = Visibility::Hidden;
         *pick = Pickable::IGNORE;
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub struct InMenuView;
+
+impl ComputedStates for InMenuView {
+    type SourceStates = UiState;
+
+    fn compute(source: UiState) -> Option<Self> {
+        match source {
+            UiState::MenuView(_) => Some(InMenuView), // Matches any inner variant
+            _ => None,
+        }
     }
 }
