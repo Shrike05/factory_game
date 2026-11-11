@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::ui_widgets::Button;
 
 use crate::ui::menu::inventory_detail::inventory_ui;
+use crate::ui::menu::settings::settings_ui;
 use crate::ui::menu::skill_tree::{skill_detail_view, skill_tree_ui};
 use crate::ui::menu::types::*;
 use crate::ui::ui_state::{MenuState, UiState};
@@ -19,14 +20,32 @@ pub fn detail_root_ui() -> impl Scene {
             cost_points: 100,
             is_max_level: false,
         },
-        nodes: vec![SkillNodeData {
-            code: "Sm".into(),
-            name: "Smelter".into(),
-            tier: 0,
-            status_text: "Locked".into(),
-            is_unlocked: false,
-            is_selected: true,
-        }],
+        nodes: vec![
+            SkillNodeData {
+                code: "Sm".into(),
+                name: "Smelter".into(),
+                tier: 0,
+                status_text: "Locked".into(),
+                is_unlocked: false,
+                is_selected: true,
+            },
+            SkillNodeData {
+                code: "Cr".into(),
+                name: "Crusher".into(),
+                tier: 0,
+                status_text: "Locked".into(),
+                is_unlocked: false,
+                is_selected: true,
+            },
+            SkillNodeData {
+                code: "Fr".into(),
+                name: "Former".into(),
+                tier: 1,
+                status_text: "Locked".into(),
+                is_unlocked: false,
+                is_selected: true,
+            },
+        ],
     };
     let inventory_data = InventoryUiData {
         items_telemetry: vec![
@@ -55,6 +74,8 @@ pub fn detail_root_ui() -> impl Scene {
             exact_qty: "10".into(),
         }],
     };
+
+    let settings_data = SettingsUiData { groups: vec![] };
     bsn! {
         Node{
             position_type: PositionType::Absolute,
@@ -73,6 +94,9 @@ pub fn detail_root_ui() -> impl Scene {
             --
             @skill_tree_ui(skill_tree_data)
             SkillTreeTab
+            --
+            @settings_ui(settings_data)
+            SettingsTab
         ]
     }
 }
@@ -86,21 +110,26 @@ pub struct InventoryTab;
 #[derive(Component, Clone, Copy, Debug, Default)]
 pub struct SkillTreeTab;
 
+#[derive(Component, Clone, Copy, Debug, Default)]
+pub struct SettingsTab;
+
 pub fn update_menu_visibility(
     state: Res<State<UiState>>,
     mut menus: ParamSet<(
         Query<&mut Node, With<InventoryTab>>,
         Query<&mut Node, With<SkillTreeTab>>,
+        Query<&mut Node, With<SettingsTab>>,
     )>,
 ) {
     if !state.is_changed() {
         return;
     }
 
-    let (inv_display, skill_display) = match state.get() {
-        UiState::MenuView(MenuState::Inventory) => (Display::Flex, Display::None),
-        UiState::MenuView(MenuState::SkillTree) => (Display::None, Display::Flex),
-        _ => (Display::None, Display::None),
+    let (inv_display, skill_display, settings_display) = match state.get() {
+        UiState::MenuView(MenuState::Inventory) => (Display::Flex, Display::None, Display::None),
+        UiState::MenuView(MenuState::SkillTree) => (Display::None, Display::Flex, Display::None),
+        UiState::MenuView(MenuState::Settings) => (Display::None, Display::None, Display::Flex),
+        _ => (Display::None, Display::None, Display::None),
     };
 
     for mut node in &mut menus.p0() {
@@ -108,5 +137,8 @@ pub fn update_menu_visibility(
     }
     for mut node in &mut menus.p1() {
         node.display = skill_display;
+    }
+    for mut node in &mut menus.p2() {
+        node.display = settings_display;
     }
 }
